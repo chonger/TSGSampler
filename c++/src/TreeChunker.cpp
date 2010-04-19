@@ -66,11 +66,18 @@ void TreeChunker::resample(double smooth) {
     
     //printf("TOTAL = %d\n",samples.size());
     //size_t i=0;
+
+    /**
     for(vector<pair<ParseTree*,NodeOffset> >::iterator iter = samples.begin();
         iter != samples.end(); ++iter) {
         //if(++i % 1000 == 0)
         //    printf("%d\n",i);
         sampleNode(iter->first,iter->second,smooth);
+    }
+    */
+
+    for(size_t i=0;i<ntrees;++i) {
+        sampleTree(trees[i],smooth);
     }
 }
 
@@ -135,7 +142,12 @@ void TreeChunker::resampleBeta() {
     }
 }
     
-    
+void TreeChunker::sampleTree(ParseTree& tree, double smooth) {
+
+
+}
+
+
 void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) {
         
     TreeNode& node = tree->nodelist[offset];

@@ -39,6 +39,7 @@ private:
     void resample(double smooth);
     void resampleBeta();
     void sampleNode(ParseTree* tree, NodeOffset offset, double smooth);
+    void sampleTree(ParseTree& tree, double smooth);
     double score(Segment& seg);
     void shuffle();
 
