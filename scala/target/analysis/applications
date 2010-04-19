@@ -1,0 +1,15 @@
+#Classes with main methods
+#Mon Apr 19 16:24:52 EDT 2010
+src/main/scala/tools/FormFunctionTag.scala=tools.FormFunctionTag
+src/main/scala/parse/test/Unpack.scala=parse.test.Unpack
+src/main/scala/viz/SBDetector.scala=viz.SBDetector
+src/main/scala/parse/generate/TSGGen.scala=parse.generate.TSGGen
+src/main/scala/tools/UnkText.scala=tools.UnkText
+src/main/scala/tools/GetPhrases.scala=tools.GetPhrases
+src/main/scala/parse/Pickler.scala=parse.PicklerTest
+src/main/scala/parse/test/TrainTSG.scala=parse.test.TrainTSG
+src/main/scala/viz/FunctionDrawer.scala=viz.FunctionDrawer
+src/main/scala/tools/GetSmallbank.scala=tools.GetSmallbank
+src/main/scala/tools/UnkTreebank.scala=tools.UnkTreebank
+src/main/scala/parse/test/ThreadTSG.scala=parse.test.ThreadTSG
+src/main/scala/tools/LCGrammarTransformMain.scala=tools.LCGrammarTransformMain
