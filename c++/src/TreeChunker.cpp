@@ -4,6 +4,8 @@
 #include <gsl/gsl_randist.h>
 #include <fstream>
 
+size_t TreeChunker::samplesPerDist = 10;
+
 TreeChunker::TreeChunker(size_t* rhsmap_, double* pcfg_,
             double* beta_,double* alpha_,
             ParseTree* trees_, size_t ntrees_, size_t nRHS_) :
@@ -43,7 +45,8 @@ TreeChunker::TreeChunker(size_t* rhsmap_, double* pcfg_,
                     findo->second += 1;
             }
         }
-    }            
+    }
+    
 }
 
 void TreeChunker::resample(int iterations, double smoothS, double smoothF) {
@@ -56,7 +59,7 @@ void TreeChunker::resample(int iterations, double smoothS, double smoothF) {
         resampleBeta();
         clock_t finish = clock();
         printf("Iteration %d took %f seconds\n",i,(double(finish) - double(start))/CLOCKS_PER_SEC);
-        
+        printf("Log Likelihood = %f\n",logLikelihood());
     }
 }
     
@@ -67,18 +70,22 @@ void TreeChunker::resample(double smooth) {
     //printf("TOTAL = %d\n",samples.size());
     //size_t i=0;
 
-    /**
+    
     for(vector<pair<ParseTree*,NodeOffset> >::iterator iter = samples.begin();
         iter != samples.end(); ++iter) {
         //if(++i % 1000 == 0)
         //    printf("%d\n",i);
         sampleNode(iter->first,iter->second,smooth);
     }
-    */
 
+
+
+    
+    /**
     for(size_t i=0;i<ntrees;++i) {
         sampleTree(trees[i],smooth);
     }
+    */
 }
 
 void TreeChunker::resampleAlpha() {
@@ -141,9 +148,124 @@ void TreeChunker::resampleBeta() {
         beta[i] = gsl_ran_beta(r,1+expCount, 1+nExpCount);
     }
 }
+
+SeqSample TreeChunker::sampleTop(ParseTree& tree, NodeOffset nodeoff,
+                                 double smooth, std::vector<NodeOffset>& leaves) {
+
+    SeqSample ret(&tree,nodeoff);
+    ret.markerMask[nodeoff] = true;
+    ret.markers[nodeoff] = true;
+    Segment seg(&tree,nodeoff);
+    Segment::iterator iter = seg.begin();
+    ++seg.begin();
+
+    while(iter != seg.end()) {
+        TreeNode node = tree.nodelist[iter.offset];
+        //decide if this node is a cut point
+        bool cut = true;
+        if(!node.isTerminal) { //automatically a cut point if its a terminal
+            if(rand() > .5)
+                cut = false;
+        }
+        if(cut) {
+            iter.stub = true;
+            ret.markers[iter.offset] = true;
+            ret.markerMask[iter.offset] = true;
+        }
+        ++iter;
+    }
     
+    return ret;
+    
+}
+
+SeqSample TreeChunker::sampleFrom(ParseTree& tree, NodeOffset nodeoff, double smooth) {
+    
+    if(chart[nodeoff].samples == NULL) {
+        
+        TreeNode node = tree.nodelist[nodeoff];
+
+        if(node.isTerminal) {
+            SeqSample sam(&tree,nodeoff);
+            chart[nodeoff] = SampleDist(1,&sam);  
+        } else {
+            SeqSample* sams = new SeqSample[samplesPerDist];
+            for(size_t i=0;i<samplesPerDist;++i) { //set samplesPerDist samples
+                std::vector<NodeOffset> leaves;
+                //sample a tree top
+                SeqSample sam = sampleTop(tree,nodeoff,smooth,leaves);
+                for(size_t k=0;k<leaves.size();++k) {
+                    //sample the distribution at each leaf
+                    SeqSample subSam = sampleFrom(tree,leaves[k],smooth);
+                    //push the sampled subtree's markers into this sample
+                    for(size_t j=0;j<tree.size;++j) {
+                        if(subSam.markerMask[j]) {
+                            sam.markerMask[j] = true;
+                            sam.markers[j] = subSam.markers[j];
+                        }
+                    }
+                    //multiply in the probability of the subtree
+                    sam.prob *= subSam.prob;
+                }
+                sams[i] = sam;
+            }
+            chart[nodeoff] = SampleDist(samplesPerDist,sams);  
+        }
+    }
+    return chart[nodeoff].sample();
+}
+
+
 void TreeChunker::sampleTree(ParseTree& tree, double smooth) {
 
+    chart = new SampleDist[tree.size];
+
+    //save the original cut markings in case of rejection
+    bool* originalMarkers = new bool[tree.size];
+    for(size_t i=0;i<tree.size;++i) {
+        originalMarkers[i] = tree.markers[i];
+    }
+    
+    double originalP = segmentationP(tree);
+
+    double originalQ = 1.0; //TODO calculate q(orig)
+
+    
+    /**
+     * sequential monte carlo sampler produces a sample from an approximate
+     * distribution q(x)
+     */
+    SeqSample sam = sampleFrom(tree,0,smooth);
+
+    for(size_t i=0;i<tree.size;++i) {
+        tree.markers[i] = sam.markers[i];
+    }
+    double newP = segmentationP(tree);
+    double newQ = sam.prob;
+    
+    /**
+     * use metropolis-hastings to decide acceptance (record acceptance rate!)
+     */ 
+    double a1 = newP / originalP;
+    double a2 = originalQ / newQ;
+    double a = a1 * a2;
+    bool accept = true;
+    if(a < 1) {
+        if(rand() > a)
+            accept = false;
+    }
+
+    //if we accept, the markers are already set
+    if(!accept) {
+        //restore original markers
+        for(size_t i=0;i<tree.size;++i) {
+            tree.markers[i] = originalMarkers[i];
+        }
+    }
+ 
+    
+    delete[] chart;
+    chart = NULL;
 
 }
 
@@ -488,4 +610,41 @@ void TreeChunker::packResults(const char* filename) {
 
     ofs.close();
     
+}
+
+
+double TreeChunker::logLikelihood() {
+    double ll = 0.0;
+
+    double avgSegs = 0.0;
+    
+    for(size_t i=0;i<ntrees;++i) {
+        ParseTree& tree = trees[i];
+        double sCount = 1.0;
+        for(NodeOffset j=0;j<tree.size;++j) {
+            if(tree.markers[j]) {
+                sCount += 1;
+                Segment seg = Segment(&tree,j);
+                double bottomScore = score(seg);
+                ll += log(bottomScore);
+            }
+        }
+        sCount /= tree.size;
+        avgSegs += sCount / ntrees;
+    }
+    printf("Average Segments Per Tree = %f\n",avgSegs);
+    return ll;
+
+}
+
+double TreeChunker::segmentationP(ParseTree& tree) {
+    double ret = 1.0;
+    for(NodeOffset j=0;j<tree.size;++j) {
+        if(tree.markers[j]) {
+            Segment seg = Segment(&tree,j);
+            double scr = score(seg);
+            ret *= scr;
+        }
+    }
+    return ret;
 }

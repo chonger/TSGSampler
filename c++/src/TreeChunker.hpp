@@ -2,6 +2,7 @@
 #define TSG_TREECHUNKER 1
 
 #include "ParseTree.hpp"
+#include "SequentialSample.hpp"
 #include <google/dense_hash_map>
 #include <vector>
 #include <math.h>
@@ -39,9 +40,21 @@ private:
     void resample(double smooth);
     void resampleBeta();
     void sampleNode(ParseTree* tree, NodeOffset offset, double smooth);
+
+    //sequential sampling
     void sampleTree(ParseTree& tree, double smooth);
+    SeqSample sampleFrom(ParseTree& tree, NodeOffset node, double smooth);
+    SeqSample sampleTop(ParseTree& tree, NodeOffset node, double smooth, std::vector<NodeOffset>& leaves);
+    SampleDist* chart;
+    static size_t samplesPerDist;
+
+    
+
     double score(Segment& seg);
     void shuffle();
+
+    double logLikelihood();
+    double segmentationP(ParseTree& tree);
 
     void resampleAlpha();
     std::pair<double,double> getLNMeanVar(double d, double variance);
