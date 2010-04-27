@@ -133,9 +133,9 @@ public:
         printf("SEGMENT PRINTOUT\n");
         for(Segment::iterator iter = begin(); iter != end(); ++iter) {
             if(!iter.stub)
-                printf("NODE %d\n",iter.n->index);
+                printf("NODE %d (%d)\n",iter.offset,iter.n->index);
             else
-                printf("STUB\n");
+                printf("STUB %d\n",iter.offset);
         }
         printf("\n");
     }

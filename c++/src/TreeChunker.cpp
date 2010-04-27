@@ -10,13 +10,14 @@ size_t TreeChunker::samplesPerDist = 10;
 
 TreeChunker::TreeChunker(size_t* rhsmap_, double* pcfg_,
                          double* beta_,double* alpha_,
-                         ParseTree* trees_, size_t ntrees_, size_t nRHS_) : chart(NULL),
+                         ParseTree* trees_, size_t ntrees_, size_t nRHS_) :
+    chart(NULL), treemap(1000000),
+    
     rhsMap(rhsmap_), rhsCounts(NULL), pcfg(pcfg_), beta(beta_),
     alpha(alpha_), trees(trees_), ntrees(ntrees_), nRHS(nRHS_) {
     
     nulltree1 = new ParseTree(NULL,NULL,0);
-    nulltree2 = new ParseTree(NULL,NULL,0);
-    
+    nulltree2 = new ParseTree(NULL,NULL,0);    
 
     treemap.set_empty_key(Segment(nulltree1,(NodeOffset)0));
     treemap.set_deleted_key(Segment(nulltree2,(NodeOffset)0));
@@ -66,8 +67,10 @@ void TreeChunker::resample(int iterations, double smoothS, double smoothF) {
         }
         */
         
-        if(i % 10 == 9) {
-            //if(false) {  
+        //if(i % 10 == 9) {
+        if(i % 2 == 1) {
+            //if(false) {
+        //if(true) {
             resampleTrees();
 
             resampleBeta();
@@ -86,6 +89,9 @@ void TreeChunker::resample(int iterations, double smoothS, double smoothF) {
             printf("%f\n",logLikelihood());
             //printf("Log Likelihood = %f\n",logLikelihood());
         }
+
+
+        treemap.resize(0);
 
         /**
         double dist = 0.0;
@@ -128,7 +134,24 @@ void TreeChunker::resample(double smooth) {
     }
     
 
-
+    for(size_t k=0;k<ntrees;++k) {
+        ParseTree* tree = &trees[k];
+        for(size_t i=0;i<tree->size;++i) {
+            if(tree->markers[i]) {
+                Segment seg = Segment(tree,i);
+                TreeHashMap::iterator iter = treemap.find(seg);
+                if(iter == treemap.end()) {
+                    
+                    for(size_t j=0;j<tree->size;++j) {
+                        printf("%d\n",tree->markers[j]);                        
+                    }
+                    printf("CRAZY ERROR GIBBS %d\n",i);
+                    throw "STOP";
+                }   
+            }   
+        } 
+        
+    } 
     
     
     
@@ -137,11 +160,32 @@ void TreeChunker::resample(double smooth) {
 void TreeChunker::resampleTrees() {
     //printf("SAMPLE JOINT TREES\n");
     //for(size_t i=0;i<ntrees;++i) {
-    for(size_t i=0;i<1;++i) {
+
+    acceptCount = 0;
+    acceptTotal = 0;
+    
+    for(size_t i=0;i<ntrees;++i) {
         //        if(i % 1000 == 0)
         //    printf("SAMPLE TREE %d\n",i);
         sampleTree(&trees[i],1.0);
     }
+    for(size_t i=0;i<ntrees;++i) {
+        ParseTree* tree = &trees[i];
+        for(size_t i=0;i<tree->size;++i) {
+            if(tree->markers[i]) {
+                Segment seg = Segment(tree,i);
+                TreeHashMap::iterator iter = treemap.find(seg);
+                if(iter == treemap.end()) {
+                    printf("CRAZY ERROR!!!!!\n");
+                    throw "STOP";
+                }   
+            }   
+        } 
+
+    }
+    
+    printf("ACC C = %d\n",acceptCount);
+    printf("ACC T = %d\n",acceptTotal);
     
 }
 
@@ -190,7 +234,7 @@ void TreeChunker::resampleAlpha() {
         double accept = qFrac * pFrac;
         //printf("ACC=%f\n",accept);
         if(nextAlpha == 0)
-            accept = 0.0;
+            continue;
         if(accept >= 1.0) 
             alpha[i] = nextAlpha;
         else {
@@ -244,7 +288,6 @@ void TreeChunker::resampleBeta() {
         beta[i] = newVal;
     }
     gsl_rng_free(r);
-    
 }
 
 SeqSample TreeChunker::sampleTop(ParseTree& tree, NodeOffset nodeoff,
@@ -402,8 +445,12 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
         if(tree->markers[i]) {
             Segment seg(tree,i);
             TreeHashMap::iterator iter = treemap.find(seg);
-            if(iter == treemap.end())
+            if(iter == treemap.end()) {
+                printf("I = %d\n",i);
+
                 throw "THEY SHOULD BE IN THE MAP";
+
+            }
             
             if(iter->second == 1) {
                 treemap.erase(iter); //does not invalidate other iterators
@@ -411,7 +458,7 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
                 iter->second -= 1;
             
             size_t lhs = tree->nodelist[seg.headIndex].index;
-            rhsMap[lhs] -= 1;
+            rhsCounts[rhsMap[lhs]] -= 1;
         }   
     }
     
@@ -438,7 +485,14 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
         }
         if(!sam.markerMask[i])
             throw "All nodes should be unmasked here";
-        tree->markers[i] = sam.markers[i];
+
+        bool mark = sam.markers[i];
+
+        //        if(mark != 0) {
+        //  mark = true;
+        //}
+                
+        tree->markers[i] = mark;
     }
     
     double newP = segmentationP(*tree);
@@ -455,14 +509,23 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
             accept = false;
     }
 
+    acceptTotal += 1;
+
+    
     //if we accept, the markers are already set
     if(!accept) {
         //restore original markers
         for(size_t i=0;i<tree->size;++i) {
             tree->markers[i] = origSam.markers[i];
         }
+    } else {
+        acceptCount += 1;
     }
 
+    if(!tree->markers[0]) {
+        printf("ROOT NOT MARKERD!\n");
+        throw "STOP";
+    }
     for(size_t i=0;i<tree->size;++i) {
         if(tree->markers[i]) {
             Segment seg = Segment(tree,i);
@@ -472,7 +535,35 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
             else
                 iter->second += 1;
             size_t lhs = tree->nodelist[seg.headIndex].index;
-            rhsMap[lhs] += 1;
+            rhsCounts[rhsMap[lhs]] += 1;
+
+            if(accept) {
+                Segment::iterator sitr = seg.begin();
+                ++sitr;
+                while(sitr != seg.end()) {
+                    NodeOffset newOff = sitr.offset - i;
+                    if(!accept) {
+                        if(newOff != sitr.n->head) {
+                            printf("OLD/NEW - %d %d\n",sitr.n->head,newOff);
+                            throw "!!!";
+                        }
+                        
+                    }
+                    sitr.n->head = newOff;
+                    ++sitr;
+                }
+            }
+        }   
+    }
+
+    for(size_t i=0;i<tree->size;++i) {
+        if(tree->markers[i]) {
+            Segment seg = Segment(tree,i);
+            TreeHashMap::iterator iter = treemap.find(seg);
+            if(iter == treemap.end()) {
+                printf("CRAZY ERROR\n");
+                throw "STOP";
+            }   
         }   
     }
     
@@ -483,7 +574,7 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
 
 
 void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) {
-        
+    
     TreeNode& node = tree->nodelist[offset];
     NodeOffset headOffset = offset - node.head;
     TreeNode& head = tree->nodelist[headOffset];
@@ -494,8 +585,9 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
     size_t myRHSTotal = rhsCounts[myRHS];
     double headAlpha = alpha[headRHS];
     double myAlpha = alpha[myRHS];
-    
+
     bool wasCut = tree->markers[offset];
+    
     
     tree->markers[offset] = true;
     
@@ -536,6 +628,7 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
         if(bottomIter != treemap.end())
             bottomCount = bottomIter->second;
     }
+    
     double bottomScore = score(bottom);
     
     size_t treeKronDel = top.equals(bottom) ? 1 : 0;
@@ -547,7 +640,7 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
 
 #ifdef TSGDEBUG
     if(join.equals(top) || join.equals(bottom)) {
-        printf("%d CANT HAVE JOIN = TOP|BOT\n",tree->index);
+        printf("CANT HAVE JOIN = TOP|BOT\n");
         top.printMe();
         bottom.printMe();
         join.printMe();
@@ -560,8 +653,9 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
     if(!wasCut) { //join must be in the map
 
 #ifdef TSGDEBUG
+
         if(joinIter == treemap.end()) {
-            printf("%d JOIN SHOULD BE IN THE MAP\n",tree->index);
+            printf("JOIN SHOULD BE IN THE MAP\n");
             
             throw 1;
         }
@@ -569,9 +663,12 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
 
         joinCount = joinIter->second - 1;
     } else {
+
         if(joinIter != treemap.end())
             joinCount = joinIter->second;
+        //else it stays at zero
     }
+
     double joinScore = score(join);
     
 
@@ -585,10 +682,18 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
     float randval = (rand() / ((float) RAND_MAX + 1));
 
     //printf("CUTOFF at %f - join %f comb %f, randval %f\n",cutoff,joinProb,combProb,randval);
-        
+
+
+    //TOFDO _ REMOVE THESE DEBUG VARIABLES
+    bool doCut = false;
+    bool inserted = false;
+    bool erTop = false;
+    bool erBot = false;
+
+    
     if(randval > cutoff) { //join
-                    
-            //node is already marked as not cut from above in this method,             
+        doCut = false;
+        //node is already marked as not cut from above in this method,             
 
         if(wasCut) {
             bool insertJoin = false;
@@ -596,17 +701,20 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
                 insertJoin = true;
             } else {
                 joinIter->second += 1;
+
             }
             
             //topIter and bottomIter must have been in, checked above
                             
             if(topIter->second == 1) {
+                erTop = true;
                 treemap.erase(topIter); //does not invalidate other iterators
             } else 
                 topIter->second -= 1;
 
                 
             if(bottomIter->second == 1) {
+                erBot = true;
                 treemap.erase(bottomIter); //does not invalidate other iterators
             } else 
                 bottomIter->second -= 1;
@@ -622,9 +730,10 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             }
                 
             rhsCounts[myRHS] -= 1;
-            if(insertJoin)
-                treemap.insert(make_pair(join,1));
-
+            if(insertJoin) {
+                treemap.insert(make_pair(join,1));    //INSERT INVALIDATES
+                inserted = true;
+            }
 
 #ifdef TSGDEBUG
 
@@ -647,23 +756,35 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
                 cb = b->second;
             if(cj != joinCount + 1) {
                 printf("JOIN ERROR : JOIN COUNT ERROR %d -> %d\n",joinCount,cj);
+                printf("j %d b %d t %d\n",join.headIndex,bottom.headIndex,top.headIndex);
+                printf("Wascut %s %s- Iscut - %d\n",(wasCut)?"T":"F",(!wasCut)?"F":"T",doCut);
+                printf("insJ %d - erTop %d - erBot %d\n",inserted,erTop,erBot);
                 top.printMe();
                 bottom.printMe();
                 join.printMe();
                 throw "!";
             }
-            if(ct != topCount) {
+            size_t minus = 0;
+            if(top.equals(bottom))
+                minus = 1;
+            if(ct != topCount - minus) {
                 printf("TOP COUNT ERROR\n");
+                top.printMe();
+                bottom.printMe();
+                join.printMe();
                 throw "!";
             }
-            if(cb != bottomCount) {
+            if(cb != bottomCount - minus) {
                 printf("BOTTOM COUNT ERROR\n");
+                top.printMe();
+                bottom.printMe();
+                join.printMe();
                 throw "!";
             }
 #endif          
         } 
     } else {
-
+        doCut = true;
         //the marker was set to false in this method, so set it true
         tree->markers[offset] = true;
         if(!wasCut) {
@@ -698,14 +819,24 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             for(Segment::iterator iter = ++bottom.begin();iter != bottom.end(); ++iter) {
                 iter.n->head = (iter.offset - newHead);
             }
-            
-            if(insertTop) 
-                treemap.insert(make_pair(top,1));
-                
-            if(insertBot) 
-                treemap.insert(make_pair(bottom,1));
 
+            bool dblInsert = false;
+            if(insertTop) {
+                if(top.equals(bottom)) {
+                    dblInsert = true;
+                    treemap.insert(make_pair(top,2)); //INSERT INVALIDATES
+                    insertBot = false;
+                } else 
+                    treemap.insert(make_pair(top,1)); //INSERT INVALIDATES
+            }
+                
+            if(insertBot) {
+                treemap.insert(make_pair(bottom,1)); //INSERT INVALIDATES
+            }
 #ifdef TSGDEBUG
+
+            //check that counts updated right for this split
+            
             TreeHashMap::iterator j = treemap.find(join);
             TreeHashMap::iterator t = treemap.find(top);
             TreeHashMap::iterator b = treemap.find(bottom);
@@ -720,19 +851,57 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
                 cb = b->second;
             if(cj != joinCount) {
                 printf("JOIN COUNT ERROR %d -> %d\n",joinCount,cj);
+                top.printMe();
+                bottom.printMe();
+                join.printMe();
                 throw "!";
             }
-            if(ct != topCount + 1) {
-                printf("TOP COUNT ERROR\n");
+            size_t add = 1;
+            if(top.equals(bottom))
+                add = 2;
+            if(ct != topCount + add) {
+                printf("TOP COUNT ERROR %d %d\n",ct,topCount+add);
+                printf("BOTTOM COUNT %d %d\n",cb,bottomCount+add);
+                printf("JOIN COUNT %d -> %d\n",joinCount,cj);
+                printf("DBLADD? %d\n",dblInsert);
+                top.printMe();
+                bottom.printMe();
+                join.printMe();
                 throw "!";
             }
-            if(cb != bottomCount + 1) {
-                printf("BOTTOM COUNT ERROR\n");
+            if(cb != bottomCount + add) {
+                printf("BOTTOM COUNT ERROR %d %d\n",cb,bottomCount+add);
+                top.printMe();
+                bottom.printMe();
+                join.printMe();
                 throw "!";
             }
 #endif
             
         }
+    }
+
+    for(size_t i=0;i<tree->size;++i) {
+        if(tree->markers[i]) {
+            Segment seg = Segment(tree,i);
+            TreeHashMap::iterator iter = treemap.find(seg);
+            if(iter == treemap.end()) {
+                printf("MISSING\n");
+                seg.printMe();
+                printf("BOTTOM\n");
+                bottom.printMe();
+                printf("TOP\n");
+                top.printMe();
+                printf("JN\n");
+                join.printMe();
+                printf("j %d b %d t %d\n",join.headIndex,bottom.headIndex,top.headIndex);
+                printf("seg from %d misssing\n",i);
+                printf("Wascut %d - Iscut - %d\n",wasCut,doCut);
+                printf("insJ %d - erTop %d - erBot %d\n",inserted,erTop,erBot);
+                printf("CRAZY ERROR NOW!!!\n");
+                throw "STOP";
+            }   
+        }   
     }
 }
 
@@ -740,7 +909,16 @@ double TreeChunker::scoreDP(Segment& seg, double smooth) {
     TreeNode& node = seg.ptree->nodelist[seg.headIndex];
     
     size_t rhs = rhsMap[node.index];
+    if(rhs >= nRHS) {
+        for(size_t i=0;i<nRHS;++i) {
+            printf("RHS %d = %d\n",i,rhsMap[i]);
+        }
+        printf("INDEX = %d\n",node.index);
+        printf("BAD USE LHS %d\n",rhs);
+        throw "BAD THING";
+    }
     size_t total = rhsCounts[rhs];
+
     double al = alpha[rhs];
 
     TreeHashMap::iterator iter = treemap.find(seg);
@@ -870,6 +1048,7 @@ double TreeChunker::logLikelihood() {
                     size_t count = 0;
                     if(iter != treemap.end())
                         count = iter->second;
+                    
                     double baseScore = score(seg);
 
                     printf("RHS %d\n",rhs);

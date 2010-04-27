@@ -89,6 +89,12 @@ private:
 
     ParseTree* nulltree1;
     ParseTree* nulltree2;
+
+
+    size_t acceptCount;
+    size_t acceptTotal;
+
+    
 };
 
 
