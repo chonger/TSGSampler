@@ -16,7 +16,10 @@ object TSGGen {
       tree
     }
     corpora.treebank.TreebankData.write(outfile,data.toList,jwock.pcfg)
-     val pcfg = new DirectlyEstimatedPCFG()
+
+
+    /**
+    val pcfg = new DirectlyEstimatedPCFG()
     val raw = corpora.treebank.TreebankData.read(outfile,pcfg)
     val (syms,terms) = pcfg.size
     println("PCFG created with " + syms + " symbols and " + terms + " terminals")
@@ -25,5 +28,6 @@ object TSGGen {
     println("done")
     
     println("KL Divergence = " + jwock.klDiv(pcfg))
+    */
   }
 }

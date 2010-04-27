@@ -5,16 +5,25 @@ class ThreaderProject(info: ProjectInfo) extends DefaultProject(info)
 
   val dataDir = "/home/chonger/data/"
 
+
   val optns = Nil
   override def mainClass = Some("parse.test.ThreadTSG")
   lazy val threadrun = runTask(mainClass,runClasspath,optns) dependsOn(compile)
-  lazy val normalrun = runTask(Some("parse.test.TrainTSG"),runClasspath,
+  lazy val normalpack = runTask(Some("parse.test.TrainTSG"),runClasspath,
                                List(dataDir + "train.unk.txt",dataDir + "train.pack")
                              ) dependsOn(compile)
+
+  lazy val toygen = runTask(Some("parse.generate.TSGGen"),runClasspath,
+                               List(dataDir + "toygrammar.txt",dataDir + "toygrammar.gen","1000","50")
+                             ) dependsOn(compile)
+
+  lazy val toypack = runTask(Some("parse.test.TrainTSG"),runClasspath,
+                               List(dataDir + "toygrammar.gen",dataDir + "toy.pack")
+                             ) dependsOn(compile)
   lazy val unpack = runTask(Some("parse.test.Unpack"),runClasspath, 
-                            List(dataDir + "fft.unk.txt",
-                                 dataDir + "fft.trained.cpack",
-                                 dataDir + "fft.train.seg")) dependsOn(compile)
+                            List(dataDir + "toygrammar.gen",
+                                 dataDir + "toy.cpack",
+                                 dataDir + "toy.seg")) dependsOn(compile)
   lazy val getP = runTask(Some("tools.GetPhrases"),runClasspath,List("/media/DATA/train.txt","data/yields")) dependsOn(compile)
 
   lazy val draw = runTask(Some("viz.FunctionDrawer"),runClasspath,List("data/yields.vp","data/out.png")) dependsOn(compile)

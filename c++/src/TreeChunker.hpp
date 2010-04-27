@@ -29,6 +29,7 @@ public:
         delete nulltree1;
         delete nulltree2;
         delete[] rhsTotals;
+        delete[] chart;
     }
 
     void resample(int iterations, double smoothS, double smoothF);
@@ -38,19 +39,28 @@ public:
 private:
     
     void resample(double smooth);
+    void resampleTrees();
     void resampleBeta();
     void sampleNode(ParseTree* tree, NodeOffset offset, double smooth);
 
     //sequential sampling
-    void sampleTree(ParseTree& tree, double smooth);
+    void sampleTree(ParseTree* tree, double smooth);
     SeqSample sampleFrom(ParseTree& tree, NodeOffset node, double smooth);
     SeqSample sampleTop(ParseTree& tree, NodeOffset node, double smooth, std::vector<NodeOffset>& leaves);
     SampleDist* chart;
     static size_t samplesPerDist;
 
-    
+    /**
+     * The probability of an elementary tree under the DP
+     */ 
+    double scoreDP(Segment& seg, double smooth);
 
+    
+    /**
+     * The probability of an elementary tree under the base distribution
+     */ 
     double score(Segment& seg);
+
     void shuffle();
 
     double logLikelihood();
@@ -58,7 +68,7 @@ private:
 
     void resampleAlpha();
     std::pair<double,double> getLNMeanVar(double d, double variance);
-    double evalGammaPosterior(double d, double gamma_a, double gamma_b, size_t k, size_t n);
+    double evalGammaPosterior(double d, double gamma_a, double gamma_b, double k, double n);
     
     TreeHashMap treemap;
 

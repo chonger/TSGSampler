@@ -72,6 +72,15 @@ public:
         size = o.size;
         return *this;
     }
+
+    void clearMarkers() {
+        //leave the root marked
+        markers[0] = true;
+        for(size_t i=1;i<size;++i) {
+            markers[i] = false;
+        }
+    }
+    
     TreeNode* nodelist;
     bool* markers;
     size_t size;

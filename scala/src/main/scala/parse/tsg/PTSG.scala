@@ -7,11 +7,16 @@ class PTSG(val pcfg : PCFG, val counts : HashMap[ParseTree,Int],
            val dist : TreeDistribution, val alphas : Array[Double]) {
 
 
-  var headMap : Array[List[ParseTree]] = (for{i <- 1 to pcfg.nextSymID} yield {
+  var headMap : Array[List[ParseTree]] = (for{i <- 0 to pcfg.nextSymID} yield {
     Nil
   }).toArray
+
+  println(headMap.length)
+
   counts.foreach(_ match {
-    case (tree,count) => headMap(tree.root.symbol) ::= tree
+    case (tree,count) => {
+      headMap(tree.root.symbol) ::= tree
+    }
   })
 
   var headTotals : Array[Int] = headMap.map(_.length)
@@ -19,6 +24,15 @@ class PTSG(val pcfg : PCFG, val counts : HashMap[ParseTree,Int],
   println("Sizes!")
   headMap.zipWithIndex.foreach(_ match {
     case (x,c) => println(pcfg.symbolStrings(c) + " -> " + (x.length))
+  })
+  println("Alphas!")
+  alphas.zipWithIndex.foreach(_ match {
+    case (x,c) => println(pcfg.symbolStrings(c) + " -> " + (x))
+  })
+  println("Betas!")
+  val bs = dist.asInstanceOf[CohnGoldwater].betas
+  bs.zipWithIndex.foreach(_ match {
+    case (x,c) => println(pcfg.symbolStrings(c) + " -> " + (x))
   })
 
   //find the derivations of a given Parse Tree using this PTSG

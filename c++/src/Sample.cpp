@@ -106,10 +106,17 @@ int main(int argc, const char* argv[]) {
     TreeChunker chunker(lhsmap,probs,betas,alphas,ptrees,numTrees,numLHS);
 
     printf("SAMPLING\n");
-    chunker.resample(15000,5.0,1.0);
+    //chunker.resample(15000,5.0,1.0);
+    //chunker.resample(5000,1.0,1.0);
 
-    chunker.resample(5000,1.0,1.0);
 
+    //for toy
+    chunker.resample(500,5.0,1.0);
+    chunker.resample(500,1.0,1.0);
+
+
+    //chunker.resample(10,5.0,1.0);
+    //chunker.resample(500,1.0,1.0);
     chunker.packResults(argv[2]);
     return 0;
 }
