@@ -7,7 +7,11 @@ object UnkTreebank {
   def main(args : Array[String]) : Unit = {
     val pcfg = new PCFG
 	val data = TreebankData.read(args(0),pcfg)
-	val (unkbank,unkPCFG) = new UnkLeastCommon(5,data,pcfg).unkData(data,pcfg)
-	TreebankData.write(args(1),unkbank,unkPCFG)
+	
+    val unker =  new UnkFromPCFG(pcfg)
+
+    val newdata = TreebankData.read(args(1),pcfg)
+	val (unkbank,unkPCFG) = unker.unkData(newdata,pcfg)
+	TreebankData.write(args(2),unkbank,unkPCFG)
   }
 }

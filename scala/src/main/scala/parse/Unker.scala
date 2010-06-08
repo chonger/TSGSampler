@@ -53,26 +53,41 @@ class Unker {
   }
 }
 
+class UnkFromPCFG(pcfg : PCFG) extends UnkLeastCommon(0,Nil,pcfg) {
+
+  override def initMe() {
+    lexicon ++= pcfg.terminalStrings
+  }
+
+}
+
+
 //Unks any terminal which occurs at most n times
 class UnkLeastCommon(n : Int, data : List[ParseTree], pcfg : PCFG) extends Unker {
 
 	import scala.collection.mutable.HashMap
 	import scala.collection.mutable.HashSet
 
-	println("Finding a lexicon of words which occur more than " + n + " times")
+    val lexicon = new HashSet[String]()
+    initMe()
+
+    def initMe() = {
+	  println("Finding a lexicon of words which occur more than " + n + " times")
+      
+	  
  
-	val lexicon = new HashSet[String]()
- 
-	val counts = new HashMap[ParseTypes.Terminal,Int]()
-	data.foreach(t => t.terminals.foreach(term => {
+	  val counts = new HashMap[ParseTypes.Terminal,Int]()
+	  data.foreach(t => t.terminals.foreach(term => {
 		counts(term.terminal) = counts.getOrElse(term.terminal,0) + 1
-	}))
-	counts.keySet.foreach(k => {
+	  }))
+	  counts.keySet.foreach(k => {
 		if(counts(k) > n)
 			lexicon += pcfg.terminalStrings(k)
-	})
+	  })
  
-	println("Got a lexicon of size " + lexicon.size)
+	  println("Got a lexicon of size " + lexicon.size)
+    }
+
 
 	override def unk_?(s : String) = !(lexicon contains s)
  

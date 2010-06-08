@@ -87,15 +87,23 @@ struct SampleDist {
     
     SampleDist() : samples(NULL), norm(0.0), num(0), tree(NULL), leftOut(0.0) {}
     
-    SampleDist(size_t n, SeqSample* sam, ParseTree* t) : samples(NULL), norm(0.0), num(n), tree(t) {
+    SampleDist(size_t n, SeqSample* sam, ParseTree* t) :
+        samples(NULL), norm(0.0), num(n), tree(t) {
+
         samples = new SeqSample[n];
         for(size_t i=0;i<n;++i) {
             samples[i] = sam[i];
             norm += samples[i].prob;
-            samples[i].prob *= .9;
-        }
-        leftOut = .1 / (pow(2,tree->size) - num);
 
+        }
+        for(size_t i=0;i<n;++i) {
+            samples[i].prob = samples[i].prob * .9 / norm;
+            //printf("PROB - %E\n",samples[i].prob);
+        }
+        //printf("NORM = %E --- %d\n",norm,num);
+        //the prob fields are shrunk by .9 though
+        //each possible tree also gets a piece of the .1
+        leftOut = 0.1 / ((double) pow(2,tree->size));
     }
 
     SampleDist& operator=(const SampleDist& o) {
@@ -108,12 +116,13 @@ struct SampleDist {
             samples[i] = o.samples[i];
         }
         tree = o.tree;
+        leftOut = o.leftOut;
         return *this;
     }
 
     SeqSample sample() {
         double rDub = (double) rand() / ((double)RAND_MAX + 1.0);
-        double p = rDub * norm;
+        double p = rDub;
         //printf("sample! %f\n",p);
         double cumulative = 0.0;
         for(size_t i=0;i<num;++i) {
@@ -124,7 +133,7 @@ struct SampleDist {
         }
 
         //the internal sample's probs should add up to .9
-        if(rDub < .89) {
+        if(rDub < .8999) {
             printf("randVal = %f\n",rDub);
             for(size_t i=0;i<num;++i) {
                 printf("PROB - %f\n",samples[i].prob);
@@ -139,16 +148,18 @@ struct SampleDist {
                 double r2 = (double) rand() / ((double)RAND_MAX + 1.0);
                 if(r2 > .5)
                     s.markers[i] = true;
+                else
+                    s.markers[i] = false;
             }
         }
         s.markers[samples[0].head] = true;
         return s;
-        
     }
 
     double score(bool* marks, size_t size) {
         //first see if its in the distribution
 
+        double ret = leftOut;
         for(size_t n=0;n<num;++n) {
             bool found = true;
             for(size_t i=0;i<size;++i) {
@@ -158,11 +169,11 @@ struct SampleDist {
                 }
             }
             if(found)
-                return samples[n].prob;
+                ret += samples[n].prob;
         }
-
+        
         //if we get here, the segmentation wasnt found
-        return leftOut;
+        return ret;
     }
 
     ~SampleDist() {

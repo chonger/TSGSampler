@@ -7,6 +7,8 @@
 #include <vector>
 #include <math.h>
 #include <ctime>
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -32,9 +34,11 @@ public:
         delete[] chart;
     }
 
-    void resample(int iterations, double smoothS, double smoothF);
+    void resample(int iterations, double smoothS, double smoothF, size_t distSz, size_t jointFreq);
 
     void packResults(const char* filename);
+
+    std::ofstream outstream;
     
 private:
     
@@ -64,9 +68,11 @@ private:
     void shuffle();
 
     double logLikelihood();
-    double segmentationP(ParseTree& tree);
+    double segmentationP(ParseTree* tree);
 
     void resampleAlpha();
+    void resampleAlphaMH();
+    void resampleAlphaEW();
     std::pair<double,double> getLNMeanVar(double d, double variance);
     double evalGammaPosterior(double d, double gamma_a, double gamma_b, double k, double n);
     
@@ -93,7 +99,12 @@ private:
 
     size_t acceptCount;
     size_t acceptTotal;
+    double avgAcc;
+    double avgP;
+    double pTotal;
 
+    bool resampleA;
+    bool resampleB;
     
 };
 

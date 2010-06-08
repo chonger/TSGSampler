@@ -16,7 +16,7 @@ object GetSmallbank {
 		val data = TreebankData.read(args(1),pcfg)
 		val smallbank = data.filter(_.terminals.length <= maxlen)
 		println("Got " + smallbank.size + " trees of length " + maxlen  + " or less")
-		TreebankData.write(args(2),smallbank,pcfg)
+	    TreebankData.write(args(2),smallbank,pcfg)
 		-1
 	} 
 }

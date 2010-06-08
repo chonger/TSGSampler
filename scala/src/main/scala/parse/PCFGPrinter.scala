@@ -41,7 +41,7 @@ object PCFGPrinter {
   }
 
   def treeToString(pcfg : PCFG, tree : ParseTree) = {
-	  recTreeToString(pcfg,tree.root,"")
+	recTreeToString(pcfg,tree.root,"")
   }
   
   

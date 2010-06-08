@@ -5,11 +5,13 @@ import train.Markers
 
 abstract class TreeDistribution {
   def score(tree : SegmentRef) : Double
+  
   def score(tree : ParseTree) : Double = {
-    val mTree = new ParseTree(tree.root) with Markers
+    val mTree = new ParseTree(TreeNode.addParentPtr(tree.root)) with Markers
     val sref = new SegmentRef(mTree.root,mTree,mTree.root,true)
     score(sref)
   }
+
 }
 
 class PCFGDistribution(val pcfg: PCFG) extends TreeDistribution {

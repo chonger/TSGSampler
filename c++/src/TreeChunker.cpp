@@ -6,15 +6,16 @@
 #include <fstream>
 #include <cmath>
 
-size_t TreeChunker::samplesPerDist = 10;
+size_t TreeChunker::samplesPerDist = 100;
 
 TreeChunker::TreeChunker(size_t* rhsmap_, double* pcfg_,
                          double* beta_,double* alpha_,
                          ParseTree* trees_, size_t ntrees_, size_t nRHS_) :
-    chart(NULL), treemap(1000000),
+    chart(NULL), //treemap(1000000),
     
     rhsMap(rhsmap_), rhsCounts(NULL), pcfg(pcfg_), beta(beta_),
-    alpha(alpha_), trees(trees_), ntrees(ntrees_), nRHS(nRHS_) {
+    alpha(alpha_), trees(trees_), ntrees(ntrees_), nRHS(nRHS_),
+    resampleA(true), resampleB(true) {
     
     nulltree1 = new ParseTree(NULL,NULL,0);
     nulltree2 = new ParseTree(NULL,NULL,0);    
@@ -50,11 +51,22 @@ TreeChunker::TreeChunker(size_t* rhsmap_, double* pcfg_,
             }
         }
     }
+
+
+    /**
+    for(size_t i=0;i<nRHS;++i) {
+        printf("%d - COUNT %d - TOTAL %d\n",i,rhsCounts[i],rhsTotals[i]);
+
+    }
+    */
+    
     
 }
 
-void TreeChunker::resample(int iterations, double smoothS, double smoothF) {
+void TreeChunker::resample(int iterations, double smoothS, double smoothF, size_t distSize, size_t jointFreq) {
     double gap = smoothF - smoothS;
+
+    
     for(int i=0;i<iterations;++i) {
 
         /**
@@ -66,29 +78,41 @@ void TreeChunker::resample(int iterations, double smoothS, double smoothF) {
             lastmap.insert(make_pair(it->first,it->second));
         }
         */
-        
-        //if(i % 10 == 9) {
-        if(i % 2 == 1) {
+        clock_t start = clock();
+        if(jointFreq > 0 && i % jointFreq == jointFreq - 1) {
+            //if(i % 2 == 1) {
             //if(false) {
         //if(true) {
+            samplesPerDist = distSize;
             resampleTrees();
-
-            resampleBeta();
-            resampleAlpha();
-
-            printf("T%f\n",logLikelihood());
         } else {
             double smooth = smoothS + ((double) i / (double) iterations) * gap;
             //printf("DO ITER WITH SMOOTH = %f\n",smooth);
-            //clock_t start = clock();
+            
             resample(1/smooth);
-            resampleBeta();
-            resampleAlpha();
-            //clock_t finish = clock();
-            //printf("Iteration %d took %f seconds\n",i,(double(finish) - double(start))/CLOCKS_PER_SEC);
-            printf("%f\n",logLikelihood());
+                    
+
             //printf("Log Likelihood = %f\n",logLikelihood());
         }
+        if(resampleB)
+            resampleBeta();
+        if(resampleA)
+            resampleAlpha();
+
+        double logl = logLikelihood();
+        if(i % 100 == 0) {
+            printf("%f\n",logl);
+            clock_t finish = clock();
+            printf("Iteration %d took %f seconds\n",i,(double(finish) - double(start))/CLOCKS_PER_SEC);
+            
+            for(size_t k=0;k<nRHS;++k) {
+                printf("ALPHA %d  - %E\n",k,alpha[k]);
+            }
+            
+        }
+        outstream << logl << "\n";
+    
+        
 
 
         treemap.resize(0);
@@ -140,14 +164,6 @@ void TreeChunker::resample(double smooth) {
             if(tree->markers[i]) {
                 Segment seg = Segment(tree,i);
                 TreeHashMap::iterator iter = treemap.find(seg);
-                if(iter == treemap.end()) {
-                    
-                    for(size_t j=0;j<tree->size;++j) {
-                        printf("%d\n",tree->markers[j]);                        
-                    }
-                    printf("CRAZY ERROR GIBBS %d\n",i);
-                    throw "STOP";
-                }   
             }   
         } 
         
@@ -163,41 +179,106 @@ void TreeChunker::resampleTrees() {
 
     acceptCount = 0;
     acceptTotal = 0;
-    
+    avgAcc = 0.0;
+    avgP = 0.0;
+    pTotal = 0.0;
     for(size_t i=0;i<ntrees;++i) {
         //        if(i % 1000 == 0)
         //    printf("SAMPLE TREE %d\n",i);
         sampleTree(&trees[i],1.0);
     }
+    /**
     for(size_t i=0;i<ntrees;++i) {
         ParseTree* tree = &trees[i];
         for(size_t i=0;i<tree->size;++i) {
             if(tree->markers[i]) {
                 Segment seg = Segment(tree,i);
                 TreeHashMap::iterator iter = treemap.find(seg);
-                if(iter == treemap.end()) {
-                    printf("CRAZY ERROR!!!!!\n");
-                    throw "STOP";
-                }   
             }   
         } 
 
     }
+    */
     
-    printf("ACC C = %d\n",acceptCount);
-    printf("ACC T = %d\n",acceptTotal);
+    printf("Accept Rate = %f\n",(double)acceptCount/(double)ntrees);
+    printf("Average Accept = %f\n",avgAcc/(double)ntrees);
+    printf("Average P = %f\n",avgP/pTotal);
     
 }
 
 
-
-void TreeChunker::resampleAlpha() {
-
-    //printf("RESAMPLE ALPHA\n");
+void TreeChunker::resampleAlphaMH() {
     
-    double ALPHA_SIGSQ = 20;
-    double GAMMA_A = 1;
-    double GAMMA_B = 50;
+    double ALPHA_SIGSQ = 30;
+    double GAMMA_A = .001;
+    double GAMMA_B = 1000;
+
+    gsl_rng* r = gsl_rng_alloc(gsl_rng_taus);
+    size_t numClasses[nRHS];
+    for(size_t i=0;i<nRHS;++i) { numClasses[i] = 0; }
+
+    for(TreeHashMap::iterator iter = treemap.begin(); iter != treemap.end(); ++iter) {
+        TreeNode& n = iter->first.ptree->nodelist[iter->first.headIndex];
+        numClasses[rhsMap[n.index]] += 1;
+        //printf("INC %d\n",rhsMap[n.index]);
+    }
+    
+    for(size_t i=0;i<nRHS;++i) {
+        //printf("ALPHA NUMBER %d\n",i);
+        double curAlpha = alpha[i];
+        double numC = numClasses[i];
+        double total = rhsTotals[i];
+        
+        
+        std::pair<double,double> curMV = getLNMeanVar(curAlpha,ALPHA_SIGSQ);
+        double nextAlpha = gsl_ran_lognormal(r,curMV.first,curMV.second);
+        std::pair<double,double> nextMV = getLNMeanVar(nextAlpha,ALPHA_SIGSQ);
+        double qFrac = gsl_ran_lognormal_pdf(curAlpha,nextMV.first,nextMV.second);
+        //printf("Q1 = %f\n",qFrac);
+        //printf("Q2 = %f\n",gsl_ran_lognormal_pdf(nextAlpha,curMV.first,curMV.second));
+        qFrac /= gsl_ran_lognormal_pdf(nextAlpha,curMV.first,curMV.second);
+        
+        //printf("%f %f %f %f\n",GAMMA_A,GAMMA_B,numC,total);
+        double pFrac = evalGammaPosterior(nextAlpha,GAMMA_A,GAMMA_B,numC,total);
+        //printf("P1 = %f\n",pFrac);
+        //printf("P2 = %f\n",evalGammaPosterior(curAlpha,GAMMA_A,GAMMA_B,numC,total));
+        pFrac /= evalGammaPosterior(curAlpha,GAMMA_A,GAMMA_B,numC,total);
+        
+
+        
+
+        
+        //printf("P Q = %f %f\n",qFrac,pFrac);
+        
+        double accept = qFrac * pFrac;
+        //printf("ACC=%f\n",accept);
+        if(nextAlpha == 0)
+            continue;
+        if(accept >= 1.0) 
+            alpha[i] = nextAlpha;
+        else {
+            double rando = ((double)rand() / (double) RAND_MAX);
+            if(rando <= accept) {
+                alpha[i] = nextAlpha;
+            }
+            
+            //printf("REJECT %f from %f\n",nextAlpha,alpha[i]);
+            //if not, then leave it be
+        }
+        
+        
+        //    printf("AL %f\n",alpha[i]);
+
+    }
+
+    gsl_rng_free(r);
+
+}
+
+void TreeChunker::resampleAlphaEW() {
+    
+    double GAMMA_A = .001;
+    double GAMMA_B = 1000;
     
     gsl_rng* r = gsl_rng_alloc(gsl_rng_taus);
     size_t numClasses[nRHS];
@@ -215,42 +296,41 @@ void TreeChunker::resampleAlpha() {
         double numC = numClasses[i];
         double total = rhsTotals[i];
 
-        std::pair<double,double> curMV = getLNMeanVar(curAlpha,ALPHA_SIGSQ);
-        double nextAlpha = gsl_ran_lognormal(r,curMV.first,curMV.second);
-        std::pair<double,double> nextMV = getLNMeanVar(nextAlpha,ALPHA_SIGSQ);
-        double qFrac = gsl_ran_lognormal_pdf(curAlpha,nextMV.first,nextMV.second);
-        //printf("Q1 = %f\n",qFrac);
-        //printf("Q2 = %f\n",gsl_ran_lognormal_pdf(nextAlpha,curMV.first,curMV.second));
-        qFrac /= gsl_ran_lognormal_pdf(nextAlpha,curMV.first,curMV.second);
+        double eta = gsl_ran_beta(r,curAlpha + 1, total);
 
-        //printf("%f %f %f %f\n",GAMMA_A,GAMMA_B,numC,total);
-        double pFrac = evalGammaPosterior(nextAlpha,GAMMA_A,GAMMA_B,numC,total);
-        //printf("P1 = %f\n",pFrac);
-        //printf("P2 = %f\n",evalGammaPosterior(curAlpha,GAMMA_A,GAMMA_B,numC,total));
-        pFrac /= evalGammaPosterior(curAlpha,GAMMA_A,GAMMA_B,numC,total);
-
-        //printf("P Q = %f %f\n",qFrac,pFrac);
+        double bMinLog = GAMMA_B - log(eta);
         
-        double accept = qFrac * pFrac;
-        //printf("ACC=%f\n",accept);
-        if(nextAlpha == 0)
-            continue;
-        if(accept >= 1.0) 
-            alpha[i] = nextAlpha;
-        else {
-            double rando = ((double)rand() / (double) RAND_MAX);
-            if(rando <= accept) {
-                alpha[i] = nextAlpha;
-            }
-            
-                //printf("REJECT %f from %f\n",nextAlpha,alpha[i]);
-            //if not, then leave it be
-        }
+        double pifrac = (GAMMA_A + numC - 1) / (total * bMinLog);
+
+        double binTheta = pifrac / (1 + pifrac);
+
+        double rDub = (double) rand() / ((double)RAND_MAX + 1.0);
+
+        double gA = GAMMA_A + numC;
+        
+        if(rDub > binTheta)
+            gA -= 1;
+
+        alpha[i] = gsl_ran_gamma(r,gA,bMinLog);
 
         //printf("AL %f\n",alpha[i]);
+
     }
 
     gsl_rng_free(r);
+    
+}
+
+
+void TreeChunker::resampleAlpha() {
+
+    //printf("RESAMPLE ALPHA\n");
+    
+
+    //resampleAlphaEW();
+    resampleAlphaMH();
+    
+
     
 }
 
@@ -263,14 +343,15 @@ std::pair<double,double> TreeChunker::getLNMeanVar(double d, double variance) {
 double TreeChunker::evalGammaPosterior(double d, double gamma_a, double gamma_b, double k, double n) {
 
     //printf("EVAL %f %f %f %f %f\n",d,gamma_a,gamma_b,k,n);
-    double ret = gsl_ran_gamma_pdf(d,gamma_a,gamma_b);
+    double ret = log(gsl_ran_gamma_pdf(d,gamma_a,gamma_b));
     //printf("!%f\n",ret);
-    ret *= pow(d,k-1);
+    ret += log(d) * (k-1);
     //printf("!%f\n",ret);
-    ret *= (d + n);
+    ret += log(d + n);
     //printf("!%f\n",ret);
-    double m = gsl_sf_beta(d+1,n);
-    ret *= m;
+    ret += gsl_sf_lnbeta(d+1,n);
+    //printf("!%f\n",ret);
+    ret = exp(ret);
     //printf("!%f\n",ret);
     return ret;
 }
@@ -317,8 +398,10 @@ SeqSample TreeChunker::sampleTop(ParseTree& tree, NodeOffset nodeoff,
         size_t lhs = rhsMap[index];
 
         //iter should not be a stub at this point.
+        /**
         if(iter.stub)
             throw "Iter should not be a stub here";
+        */
         
         //decide if this node is a cut point
         bool cut = true;
@@ -334,13 +417,13 @@ SeqSample TreeChunker::sampleTop(ParseTree& tree, NodeOffset nodeoff,
         
         if(cut) {
             //printf("CUT!\n");
-            prob *= (1-cutProb);
+            prob *= (cutProb);
             iter.stub = true;  //this makes the upcoming ++ work correctly
             leaves.push_back(iter.offset);
             ret.markers[iter.offset] = true;
             ret.markerMask[iter.offset] = true;
         } else {
-            prob *= cutProb;
+            prob *= (1-cutProb);
             ret.markers[iter.offset] = false;
             ret.markerMask[iter.offset] = true;
         }
@@ -373,11 +456,14 @@ SeqSample TreeChunker::sampleFrom(ParseTree& tree, NodeOffset nodeoff, double sm
                 std::vector<NodeOffset> leaves;
                 //sample a tree top
                 SeqSample sam = sampleTop(tree,nodeoff,smooth,leaves);
+
+                /**
                 if(sam.prob == 0) {
 
                     printf("TOP!!!Why does this sample have p = 0?\n");
                     throw "Why does this sample have p = 0?";
                 }
+                */
                 //right now sam.prob is the sequential proposal (based on betas)
 
                 //printf("this sample has %d leaves\n",leaves.size());
@@ -389,10 +475,10 @@ SeqSample TreeChunker::sampleFrom(ParseTree& tree, NodeOffset nodeoff, double sm
                     for(size_t j=0;j<tree.size;++j) {
                         if(subSam.markerMask[j]) {
 
-                            //remove me later
+                            /**
                             if(sam.markerMask[j] && (sam.markers[j] != subSam.markers[j]))
                                 throw "The subsample disagrees";
-
+                            */
                             
                             sam.markerMask[j] = true;
                             sam.markers[j] = subSam.markers[j];
@@ -415,10 +501,12 @@ SeqSample TreeChunker::sampleFrom(ParseTree& tree, NodeOffset nodeoff, double sm
                 }
                 double realP = scoreDP(seg,1.0);
 
+                /**
                 if(sam.prob == 0) {
                     printf("Why does this sample have p = 0?\n");
                     throw "Why does this sample have p = 0?";
                 }
+                */
                 
                 sam.prob = realP / sam.prob; //this might be backwards...
                 
@@ -438,29 +526,40 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
         delete[] chart;
     chart = new SampleDist[tree->size];
 
-    double originalP = segmentationP(*tree);
-
     //remove these segments from the map
     for(size_t i=0;i<tree->size;++i) {
         if(tree->markers[i]) {
             Segment seg(tree,i);
+
+            //look up the segment
             TreeHashMap::iterator iter = treemap.find(seg);
+
+            /**
             if(iter == treemap.end()) {
                 printf("I = %d\n",i);
 
                 throw "THEY SHOULD BE IN THE MAP";
 
             }
-            
+            */
+
+            //decrement it
             if(iter->second == 1) {
                 treemap.erase(iter); //does not invalidate other iterators
             } else 
                 iter->second -= 1;
-            
+
+            //decrement the total
             size_t lhs = tree->nodelist[seg.headIndex].index;
             rhsCounts[rhsMap[lhs]] -= 1;
         }   
     }
+
+    //now that the segments are removed, we can calculate the segmentation Prob
+    double originalP = segmentationP(tree);
+    if(originalP > 1.0)
+        throw "BAD!";
+
     
     //store the original segmentation for computation of Q later
     SeqSample origSam(tree,0);
@@ -474,18 +573,43 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
      * distribution q(x)
      */
     SeqSample sam = sampleFrom(*tree,0,smooth);
-    double newQ = sam.prob;
+    
+    bool same = true;
+    for(size_t i=0;i<tree->size;++i) {
+        if(origSam.markers[i] != sam.markers[i]) {
+            same = false;
+            break;
+        }
+    }
+    
+    double newQ = sam.prob + chart[0].leftOut;
     
     double originalQ = chart[0].score(origSam.markers,tree->size);
-    
+    /**
+    printf("NEW SAMPLE\n");
     for(size_t i=0;i<tree->size;++i) {
+        printf("%d",sam.markers[i]);
+    }
+    printf("\n");
+
+    printf("OLD SAMPLE\n");
+    for(size_t i=0;i<tree->size;++i) {
+        printf("%d",origSam.markers[i]);
+    }
+    printf("\n");
+    */
+    for(size_t i=0;i<tree->size;++i) {
+
+        /**
         if(i == 0){
             if(!sam.markerMask[i] || !sam.markers[i])
                 throw "The root should be marked";
         }
+        */
+        
         if(!sam.markerMask[i])
             throw "All nodes should be unmasked here";
-
+        
         bool mark = sam.markers[i];
 
         //        if(mark != 0) {
@@ -493,22 +617,45 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
         //}
                 
         tree->markers[i] = mark;
-    }
     
-    double newP = segmentationP(*tree);
+    }
+
+    double newP = segmentationP(tree);
+    if(newP > 1.0)
+        throw "BAD!";
+
+    /**
+    if(same) {
+        printf("SAME!\n");
+    } else {
+        printf("NOTSAME!\n");
+    }
+    printf("newP %E oldP %E newQ %E oldQ %E\n",newP,originalP,newQ,originalQ);
+    */
     
     /**
-     * use metropolis-hastings to decide acceptance (record acceptance rate!)
+     * use metropolis-hastings to decide acceptance
+     *
+     * right now the tree has already been accepted.  If acceptance rate is low this will be a time sink
      */ 
     double a1 = newP / originalP;
+    avgP += a1;
+    pTotal += 1;
     double a2 = originalQ / newQ;
     double a = a1 * a2;
     bool accept = true;
+    avgAcc += a;
+    //printf("A - %E\n",a);
     if(a < 1) {
-        if(rand() > a)
-            accept = false;
+        double rDub = (double) rand() / ((double)RAND_MAX + 1.0);
+        if(rDub > a)
+            accept = false; //keep the old tree
     }
 
+    //uncommet to always accept
+    //accept = true;
+
+    
     acceptTotal += 1;
 
     
@@ -520,12 +667,18 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
         }
     } else {
         acceptCount += 1;
+        //if(!same)
+        //    printf("ACCEPT\n");
     }
 
+
+    //accept is decided by now
+    /**
     if(!tree->markers[0]) {
         printf("ROOT NOT MARKERD!\n");
         throw "STOP";
     }
+    */
     for(size_t i=0;i<tree->size;++i) {
         if(tree->markers[i]) {
             Segment seg = Segment(tree,i);
@@ -555,18 +708,20 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
             }
         }   
     }
-
+    /**
     for(size_t i=0;i<tree->size;++i) {
         if(tree->markers[i]) {
             Segment seg = Segment(tree,i);
             TreeHashMap::iterator iter = treemap.find(seg);
+    
             if(iter == treemap.end()) {
                 printf("CRAZY ERROR\n");
                 throw "STOP";
-            }   
+            }
+    
         }   
     }
-    
+    */
     delete[] chart;
     chart = NULL;
 
@@ -880,7 +1035,7 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             
         }
     }
-
+    /**
     for(size_t i=0;i<tree->size;++i) {
         if(tree->markers[i]) {
             Segment seg = Segment(tree,i);
@@ -903,12 +1058,14 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             }   
         }   
     }
+    */
 }
 
 double TreeChunker::scoreDP(Segment& seg, double smooth) {
     TreeNode& node = seg.ptree->nodelist[seg.headIndex];
     
     size_t rhs = rhsMap[node.index];
+    /**
     if(rhs >= nRHS) {
         for(size_t i=0;i<nRHS;++i) {
             printf("RHS %d = %d\n",i,rhsMap[i]);
@@ -917,6 +1074,7 @@ double TreeChunker::scoreDP(Segment& seg, double smooth) {
         printf("BAD USE LHS %d\n",rhs);
         throw "BAD THING";
     }
+    */
     size_t total = rhsCounts[rhs];
 
     double al = alpha[rhs];
@@ -935,6 +1093,7 @@ double TreeChunker::scoreDP(Segment& seg, double smooth) {
 
 double TreeChunker::score(Segment& seg) {
     double score = 1.0;
+    bool first = true;
     for(Segment::iterator iter = seg.begin();iter != seg.end();++iter) {
         int index = iter.n->index;
         size_t rhs = rhsMap[index];
@@ -942,7 +1101,10 @@ double TreeChunker::score(Segment& seg) {
             score *= (1.0 - beta[rhs]);
         } else {
             score *= pcfg[index]; //PCFG score
-            score *= beta[rhs];
+            if(!first)
+                score *= beta[rhs];
+            else
+                first = false;
         }
     }
     return score;
@@ -1036,6 +1198,7 @@ double TreeChunker::logLikelihood() {
                 sCount += 1;
                 Segment seg = Segment(&tree,j);
                 double bottomScore = scoreDP(seg,1.0);
+                /**
                 if(bottomScore == 0) {
                     printf("index = %d\n",j);
                     TreeNode& node = seg.ptree->nodelist[seg.headIndex];
@@ -1059,6 +1222,7 @@ double TreeChunker::logLikelihood() {
                     
                     throw "Got a zero score!";
                 }
+                */
                 ll += log(bottomScore);
             }
         }
@@ -1070,11 +1234,11 @@ double TreeChunker::logLikelihood() {
 
 }
 
-double TreeChunker::segmentationP(ParseTree& tree) {
+double TreeChunker::segmentationP(ParseTree* tree) {
     double ret = 1.0;
-    for(NodeOffset j=0;j<tree.size;++j) {
-        if(tree.markers[j]) {
-            Segment seg = Segment(&tree,j);
+    for(NodeOffset j=0;j<tree->size;++j) {
+        if(tree->markers[j]) {
+            Segment seg = Segment(tree,j);
             double scr = scoreDP(seg,1.0);
             ret *= scr;
         }
