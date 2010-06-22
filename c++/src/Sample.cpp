@@ -20,7 +20,11 @@ int main(int argc, const char* argv[]) {
     const char* filename = argv[1];
 
     std::ifstream ifs(filename,std::ios::binary);
-
+    if(!ifs.is_open()) {
+        printf("Invalid file at %s\n",filename);
+        exit(-2);
+    }
+    
     printf("Reading packed TSG from %s\n",filename);
     
     size_t numRules;
@@ -86,14 +90,17 @@ int main(int argc, const char* argv[]) {
             size_t head;
             size_t parent;
             size_t sibling;
+            size_t lexhead;
             readLEbytes(ifs,reinterpret_cast<char*>(&index),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&isTerm),sizeof(char));
             readLEbytes(ifs,reinterpret_cast<char*>(&head),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&parent),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&sibling),sizeof(size_t));
+            readLEbytes(ifs,reinterpret_cast<char*>(&lexhead),sizeof(size_t));
+
             
-            nodes[j] = TreeNode(index,isTerm,head,parent,sibling);
-            //nodes[j].printMe();
+            nodes[j] = TreeNode(index,isTerm,head,parent,sibling,lexhead);
+            //printf("NODE HEAD - %d\n",nodes[j].lexHead);
         }
         for(size_t j=0;j<numNodes;++j) {
             char mark;
@@ -110,13 +117,11 @@ int main(int argc, const char* argv[]) {
 
     printf("SAMPLING\n");
     //chunker.resample(5000,1.0,1.0,100,0);
-
-    
-    //for toy
     chunker.outstream.open(argv[3]); 
-    chunker.resample(5000,1.0,1.0,100,0);
+    chunker.resample(10,1.0,1.0,100,0);
+    //chunker.resample(5000,1.0,1.0,100,0);
     chunker.outstream.close();
-    //chunker.resample(10,5.0,1.0);
+    
     //chunker.resample(500,1.0,1.0);
     chunker.packResults(argv[2]);
     return 0;

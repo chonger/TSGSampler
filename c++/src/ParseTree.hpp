@@ -13,9 +13,11 @@ struct TreeNode {
              bool isTerminal_,
              NodeOffset head_,
              NodeOffset parent_,
-             NodeOffset sibling_) :
+             NodeOffset sibling_,
+             NodeOffset lexHead_) :
         index(index_), isTerminal(isTerminal_),
-        head(head_), parent(parent_), sibling(sibling_) {};
+        head(head_), parent(parent_), sibling(sibling_),
+        lexHead(lexHead_) {};
 
     TreeNode& operator=(const TreeNode& o) {
         index = o.index;
@@ -23,6 +25,7 @@ struct TreeNode {
         head = o.head;
         parent = o.parent;
         sibling = o.sibling;
+        lexHead = o.lexHead;
         return *this;
     }
     
@@ -31,6 +34,7 @@ struct TreeNode {
     NodeOffset head;
     NodeOffset parent;
     NodeOffset sibling;
+    NodeOffset lexHead;
 };
 
 struct ParseTree {

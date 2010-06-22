@@ -100,16 +100,18 @@ void TreeChunker::resample(int iterations, double smoothS, double smoothF, size_
             resampleAlpha();
 
         double logl = logLikelihood();
-        if(i % 100 == 0) {
+        //if(i % 100 == 0) {
             printf("%f\n",logl);
             clock_t finish = clock();
             printf("Iteration %d took %f seconds\n",i,(double(finish) - double(start))/CLOCKS_PER_SEC);
-            
+
+            /**
             for(size_t k=0;k<nRHS;++k) {
                 printf("ALPHA %d  - %E\n",k,alpha[k]);
             }
+            */
             
-        }
+            //}
         outstream << logl << "\n";
     
         
@@ -145,10 +147,6 @@ void TreeChunker::resample(double smooth) {
     
     //printf("TOTAL = %d\n",samples.size());
     //size_t i=0;
-
-
-
-
     
     for(vector<pair<ParseTree*,NodeOffset> >::iterator iter = samples.begin();
         iter != samples.end(); ++iter) {
@@ -1095,9 +1093,24 @@ double TreeChunker::score(Segment& seg) {
     double score = 1.0;
     bool first = true;
     for(Segment::iterator iter = seg.begin();iter != seg.end();++iter) {
+        
         int index = iter.n->index;
         size_t rhs = rhsMap[index];
         if(iter.stub) {
+            //triggered if a rule is not a terminal but is a leaf
+            //so it must have children, maybe a parent. ROOT -> S is the exception
+            //the "good" case is one where the leaf and its parent are different
+            //if leaf and parent are the same, we must be cutting a head chain
+            //  b/c one of the leaf's children has the same head (by def)
+
+            TreeNode* leaf = iter.n;
+            //par will be the same node at the root
+            TreeNode& par = seg.ptree->nodelist[leaf->index - leaf->parent];
+            if(leaf->lexHead == par.lexHead) {
+                score *= .5;
+            }
+
+            
             score *= (1.0 - beta[rhs]);
         } else {
             score *= pcfg[index]; //PCFG score
@@ -1118,9 +1131,6 @@ void TreeChunker::shuffle() {
         samples[samples.size() - i] = tmp;
     }
 }
-
-
-
 
 namespace {
 

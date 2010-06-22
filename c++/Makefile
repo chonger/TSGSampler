@@ -1,4 +1,4 @@
-ARGS=/home/chonger/data/2.pack /home/chonger/data/2.cpack
+ARGS=/home/chonger/data/fft.pack /home/chonger/data/fft.cpack
 TOYARGS=/home/chonger/data/toy.pack /home/chonger/data/toy.cpack
 
 all:
@@ -6,6 +6,9 @@ all:
 
 toy:
 	bin/tsgtest $(TOYARGS) log1
+
+run:
+	bin/tsgtest $(ARGS) runlog
 
 bench:
 	bin/tsgtest $(ARGS) log1

@@ -1,15 +1,9 @@
 #Classes with main methods
-#Tue Jun 01 20:12:05 EDT 2010
-src/main/scala/tools/FormFunctionTag.scala=tools.FormFunctionTag
-src/main/scala/parse/test/Unpack.scala=parse.test.Unpack
-src/main/scala/viz/SBDetector.scala=viz.SBDetector
-src/main/scala/parse/generate/TSGGen.scala=parse.generate.TSGGen
-src/main/scala/tools/UnkText.scala=tools.UnkText
-src/main/scala/tools/GetPhrases.scala=tools.GetPhrases
-src/main/scala/parse/Pickler.scala=parse.PicklerTest
-src/main/scala/parse/test/TrainTSG.scala=parse.test.TrainTSG
-src/main/scala/viz/FunctionDrawer.scala=viz.FunctionDrawer
-src/main/scala/tools/GetSmallbank.scala=tools.GetSmallbank
-src/main/scala/tools/UnkTreebank.scala=tools.UnkTreebank
-src/main/scala/parse/test/ThreadTSG.scala=parse.test.ThreadTSG
-src/main/scala/tools/LCGrammarTransformMain.scala=tools.LCGrammarTransformMain
+#Sun Jun 20 16:40:53 EDT 2010
+src/main/scala/enbuske/programs/UnpackToText.scala=enbuske.programs.UnpackToText
+src/main/scala/enbuske/programs/elit/GetPhrases.scala=enbuske.prorgams.elit.GetPhrases
+src/main/scala/enbuske/programs/TSGGen.scala=enbuske.programs.TSGGen
+src/main/scala/enbuske/programs/PackTSG.scala=enbuske.programs.PackTSG
+src/main/scala/enbuske/programs/FormFunctionTag.scala=enbuske.programs.FormFunctionTag
+src/main/scala/enbuske/programs/UnkTreebank.scala=enbuske.programs.UnkTreebank
+src/main/scala/enbuske/test/TestLexHead.scala=enbuske.test.TestLexHead
