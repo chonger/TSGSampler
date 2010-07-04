@@ -1,9 +1,10 @@
 #Classes with main methods
-#Sun Jun 20 16:40:53 EDT 2010
+#Sat Jul 03 16:01:56 EDT 2010
 src/main/scala/enbuske/programs/UnpackToText.scala=enbuske.programs.UnpackToText
-src/main/scala/enbuske/programs/elit/GetPhrases.scala=enbuske.prorgams.elit.GetPhrases
+src/main/scala/enbuske/programs/elit/GetPhrases.scala=enbuske.programs.elit.GetPhrases
 src/main/scala/enbuske/programs/TSGGen.scala=enbuske.programs.TSGGen
 src/main/scala/enbuske/programs/PackTSG.scala=enbuske.programs.PackTSG
 src/main/scala/enbuske/programs/FormFunctionTag.scala=enbuske.programs.FormFunctionTag
+src/main/scala/enbuske/programs/Enbuske.scala=enbuske.programs.Enbuske
 src/main/scala/enbuske/programs/UnkTreebank.scala=enbuske.programs.UnkTreebank
 src/main/scala/enbuske/test/TestLexHead.scala=enbuske.test.TestLexHead

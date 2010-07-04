@@ -1,4 +1,4 @@
-package enbuske.prorgams.elit
+package enbuske.programs.elit
 
 import parse._
 import java.io.{BufferedWriter,FileWriter,File}

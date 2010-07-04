@@ -76,7 +76,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
   }
 
 
-  /**
+  
   println("Sizes!")
   headMap.zipWithIndex.foreach(_ match {
     case (x,c) => println(pcfg.symbolStrings(c) + " -> " + (x.length))
@@ -90,7 +90,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
   bs.zipWithIndex.foreach(_ match {
     case (x,c) => println(pcfg.symbolStrings(c) + " -> " + (x))
   })
-  */
+  
 
   //find the derivations of a given Parse Tree using this PTSG
   def getDerivations(tree : ParseTree) : List[SegTree] = {

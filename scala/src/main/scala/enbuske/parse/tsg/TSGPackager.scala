@@ -14,9 +14,7 @@ class TSGPackager {
 
   def packageTrainer(pcfg : PCFG, dataIn : List[ParseTree with Markers], filename : String) {
     
-    println("Packaging")
-
-    println("Using lexical heads")
+    var throwout = 0
     var data = dataIn.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
     data.foreach(d => d.setHeads(pcfg))
 
@@ -58,7 +56,7 @@ class TSGPackager {
     lhsOfRule = lhsL.reverse.toArray
 
     //write number of rules
-    println("NUM RULES = " + pcfgProbs.length)
+    //println("NUM RULES = " + pcfgProbs.length)
 
     dos.writeInt(pcfgProbs.length)
     
@@ -67,7 +65,7 @@ class TSGPackager {
     lhsOfRule.foreach(i => {dos.writeInt(i)})
 
     val numLHS = pcfg.nextSymID.toInt + 1
-    println("NUM LHS = " + numLHS)
+    //println("NUM LHS = " + numLHS)
 
     dos.writeInt(pcfg.nextSymID + 1)
 
@@ -78,8 +76,12 @@ class TSGPackager {
     alphas.foreach(d => dos.writeDouble(d))
 
     dos.writeInt(data.length)
-    println("NUM TREES = " + data.length)
-    data.foreach(writeTree(_,dos))
+    //println("NUM TREES = " + data.length)
+    data.foreach(t => {
+      if(t.nonterminals.length > 255)
+        throw new Exception()
+      writeTree(t,dos)
+    })
     
     dos.close
   }
@@ -119,13 +121,14 @@ class TSGPackager {
           (1 /: pn.children)(_ + countUnder(_))          
         }
 	    case un : UnderspecifiedNode => {
-	      throw new Exception("Shouldnt find underspec nodes")
+	      throw new Exception("Shouldnt find underspecified nodes")
         }                             
 	  }
     }
 
     def walktree(n : NonTerminalNode,parentOff : Int,hasSibling : Boolean) : Unit = {
       index += 1
+
       if(tree.markers contains new RefWrapper(n))
         markers(index) = true
       else
@@ -141,7 +144,7 @@ class TSGPackager {
             dos.writeInt(1) //next node must be sibling
           else
             dos.writeInt(0)
-          dos.writeInt(0) //a preterminal is automatically its own head word
+          dos.writeInt(index) //a preterminal is automatically its own head word
         }
 	    case pn : ProtoNode => {
           val rule = pn.rule
@@ -157,9 +160,8 @@ class TSGPackager {
           
           //what is the offset of this node's head?
           val headPT = tree.getHead(pn)
-        
-          //val hOff = nts.indexOf(headPT) - nts.indexOf(n)
-          val hInd = nts.indexOf(headPT)
+          var hInd = 0
+          while(!(headPT eq nts(hInd))) hInd += 1
           dos.writeInt(hInd)
 
           var sibs = pn.children.map((n) => true).toArray
@@ -168,7 +170,7 @@ class TSGPackager {
           (pn.children zip sibs.toList).foreach(_ match {case (c,s) => walktree(c,pind,s)})
         }
 	    case un : UnderspecifiedNode => {
-	      throw new Exception("Shouldnt find underspec nodes")
+	      throw new Exception("Shouldnt find underspecified nodes")
         }                             
 	  }
     }
@@ -186,6 +188,19 @@ class TSGPackager {
     val dis = new DataInputStream(
       new BufferedInputStream(new FileInputStream(new File(infile))))
 
+    //burn through a bunch of data
+    val nRules = dis.readInt()
+    for{i <- 1 to nRules}{dis.readDouble}
+    for{i <- 1 to nRules}{dis.readInt}
+
+    val nLHS = dis.readInt()
+    val betas = (for{i <- 1 to nLHS} yield {
+      dis.readDouble()
+    }).toArray
+    val alphas = (for{i <- 1 to nLHS} yield {
+      dis.readDouble()
+    }).toArray
+
     val nTrees : Int = dis.readInt()
     
     println("got data for " + nTrees + " trees")
@@ -194,11 +209,18 @@ class TSGPackager {
     
       val nNodes : Int = dis.readInt() 
 
-      //println("This tree has " + nNodes + "nodes")
+      //burn node data
+      for{i <- 1 to nNodes}{
+        dis.readInt()
+        dis.readByte()
+        dis.readInt()
+        dis.readInt()
+        dis.readInt()
+        dis.readInt()
+      }
 
-      val nts = data(i).nonterminals //gets nts in dfs order
-      
-
+      //Node data is stored in DFS order
+      val nts = data(i).nonterminals 
 
       for{j <- 0 to nNodes - 1} {
         if(dis.readByte() > 0) {
@@ -207,13 +229,7 @@ class TSGPackager {
       }
     }
 
-    val nLHS = dis.readInt()
-    val alphas = (for{i <- 1 to nLHS} yield {
-      dis.readDouble()
-    }).toArray
-    val betas = (for{i <- 1 to nLHS} yield {
-      dis.readDouble()
-    }).toArray
+    
 
     val counts = new HashMap[ParseTree,Int]()
 

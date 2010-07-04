@@ -105,6 +105,7 @@ class PCFG() {
   
     
   def growTree(s : String) : ParseTree = {
+
 	def isWhitespace(c : Char) = List(' ','\t','\r','\n') contains c
 	def readNode(stream : StringReader) : NonTerminalNode = {
 		var ntStr = new StringBuffer()
@@ -120,7 +121,7 @@ class PCFG() {
 			c match {
 				case '(' => kids ::= readNode(stream)
 				case ')' => return ProtoNode(sym,kids.reverse)
-				case _ if isWhitespace(c) => {}
+			    case _ if isWhitespace(c) => {}
 				case _ => {
 					var termStr = new StringBuffer()
 					while(c != ')') {
@@ -169,10 +170,10 @@ class PCFG() {
 
   //expects a file of one tree per line treebank format
   def read(filename : String) : List[ParseTree] = {
-	print("Reading " + filename + " for treebank format trees ... ")
+	//print("Reading " + filename + " for treebank format trees ... ")
 	val filedata = Source.fromFile(filename).getLines
 	val treestrs = (List[String]() /: filedata)((a,b) => if(b.charAt(0) != '(') (a(0) + b) :: a.drop(1) else b :: a)
-	println("Got " + treestrs.length + " trees")
+	//println("Got " + treestrs.length + " trees")
 	treestrs.reverse.map(s => growTree(s))
   } 
  

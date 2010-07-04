@@ -307,3 +307,63 @@ reload
 unpack
 reload
 fft
+unpack
+fft
+unpack
+reload
+fft
+actions
+class Env(working : String) {
+private val workDir = new java.io.File(working)
+def run(cmd : String*) = if (Runtime.getRuntime().
+exec(cmd.toArray[String], null, workDir).waitFor() != 0)
+throw new Exception("Execution failed")
+reload
+actions
+package
+reload
+package
+actions
+update
+actions
+doc
+package
+RELOAD
+reload
+package
+actions
+graph-src
+reload
+package
+doc
+package
+reload
+package
+doc
+clean
+package
+reload
+fft
+reload
+fft
+reload
+unpack
+reloreload
+ck
+reloreload
+npack
+unpack 
+fft
+unpack 
+compile
+fftpack
+unpack 
+fftpack
+unpack 
+fftpack
+unpack 
+fftpack
+reload
+unpack 
+fftpack 
+pack

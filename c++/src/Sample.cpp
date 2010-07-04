@@ -6,7 +6,10 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <signal.h>
 
+TreeChunker* chunker = NULL;
+std::string outpath;
 
 void readLEbytes(std::ifstream& ifs, char* data, size_t bytes) {
     for(int i = bytes - 1;i>=0;--i) {
@@ -14,9 +17,32 @@ void readLEbytes(std::ifstream& ifs, char* data, size_t bytes) {
     }
 }
 
+void abortFunc(int sig) {
+    if(chunker != NULL)
+        chunker->stop = true;
+}
+
+
+struct ScheduleItem {
+    size_t nIter;
+    double smoothS;
+    double smoothE;
+
+    ScheduleItem(size_t n, double s, double e) :
+        nIter(n), smoothS(s), smoothE(e)  
+    {}
+
+
+};
+
+
 int main(int argc, const char* argv[]) {
     srand(time(NULL));
-
+    
+    signal(SIGABRT,&abortFunc);
+    signal(SIGTERM,&abortFunc);
+    signal(SIGINT,&abortFunc);
+    
     const char* filename = argv[1];
 
     std::ifstream ifs(filename,std::ios::binary);
@@ -26,7 +52,7 @@ int main(int argc, const char* argv[]) {
     }
     
     printf("Reading packed TSG from %s\n",filename);
-    
+
     size_t numRules;
     readLEbytes(ifs,reinterpret_cast<char*>(&numRules),sizeof(size_t));
     printf("%d rules\n",numRules) ;
@@ -98,7 +124,6 @@ int main(int argc, const char* argv[]) {
             readLEbytes(ifs,reinterpret_cast<char*>(&sibling),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&lexhead),sizeof(size_t));
 
-            
             nodes[j] = TreeNode(index,isTerm,head,parent,sibling,lexhead);
             //printf("NODE HEAD - %d\n",nodes[j].lexHead);
         }
@@ -113,16 +138,50 @@ int main(int argc, const char* argv[]) {
     }
     ifs.close();        
 
-    TreeChunker chunker(lhsmap,probs,betas,alphas,ptrees,numTrees,numLHS);
-
-    printf("SAMPLING\n");
-    //chunker.resample(5000,1.0,1.0,100,0);
-    chunker.outstream.open(argv[3]); 
-    chunker.resample(10,1.0,1.0,100,0);
-    //chunker.resample(5000,1.0,1.0,100,0);
-    chunker.outstream.close();
+    chunker = new TreeChunker(lhsmap,probs,numRules,betas,alphas,ptrees,numTrees,numLHS);
+    outpath = argv[2];
     
-    //chunker.resample(500,1.0,1.0);
-    chunker.packResults(argv[2]);
+    printf("Starting to Sample\n");
+
+    if(argc > 5 && std::string(argv[5]) == "cont")
+        chunker->outstream.open(argv[3],ios::app);
+    else
+        chunker->outstream.open(argv[3]);
+
+
+    //read schedule
+    std::vector<ScheduleItem> schedule;
+
+    std::ifstream sfs(argv[4]);
+    
+    while(sfs) {
+        
+        int nIter;
+        double st;
+        double en;
+
+        sfs >> nIter;
+        if(sfs.eof())
+            break;
+        sfs >> st;
+        sfs >> en;
+
+        printf("SCHEDULE - %d iterations smoothed from %f to %f\n",nIter,st,en);
+        
+        ScheduleItem item(nIter,st,en);
+        
+        schedule.push_back(item);
+    }
+    sfs.close();
+    
+    for(std::vector<ScheduleItem>::iterator it = schedule.begin(); it != schedule.end(); ++it) {
+        chunker->resample(it->nIter,it->smoothS,it->smoothE,0,0);
+    }
+
+    chunker->outstream.close();
+    chunker->packResults(outpath.c_str());
+    delete chunker;
+    chunker = NULL;
+
     return 0;
 }

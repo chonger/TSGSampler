@@ -17,7 +17,7 @@ typedef google::dense_hash_map<Segment,size_t,SegmentHash,SegmentEq> TreeHashMap
 class TreeChunker {
 public:
     
-    TreeChunker(size_t* rhsmap_, double* pcfg_,
+    TreeChunker(size_t* lhsmap_, double* pcfg_, size_t numRules,
                 double* beta_,double* alpha_,
                 ParseTree* trees_, size_t ntrees_, size_t nRHS_);
     
@@ -26,11 +26,11 @@ public:
         delete[] beta;
         delete[] alpha;
         delete[] trees;
-        delete[] rhsMap;
-        delete[] rhsCounts;
+        delete[] lhsMap;
+        delete[] lhsCounts;
         delete nulltree1;
         delete nulltree2;
-        delete[] rhsTotals;
+        delete[] lhsTotals;
         delete[] chart;
     }
 
@@ -39,6 +39,7 @@ public:
     void packResults(const char* filename);
 
     std::ofstream outstream;
+    bool stop;
     
 private:
     
@@ -78,18 +79,19 @@ private:
     
     TreeHashMap treemap;
 
-    size_t* rhsMap;
-    size_t* rhsCounts;
+    size_t* lhsMap;
+    size_t* lhsCounts;
     
     //for base prob dist
     double* pcfg;
+    size_t numRules;
     double* beta;
 
     double* alpha;
     ParseTree* trees;
     size_t ntrees;
-    size_t nRHS;
-    size_t* rhsTotals;
+    size_t nLHS;
+    size_t* lhsTotals;
     
     vector<pair<ParseTree*,NodeOffset> > samples;
 
@@ -105,6 +107,11 @@ private:
 
     bool resampleA;
     bool resampleB;
+
+    size_t numChanged;
+    size_t totalLabels;
+
+
     
 };
 
