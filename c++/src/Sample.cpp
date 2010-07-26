@@ -117,14 +117,16 @@ int main(int argc, const char* argv[]) {
             size_t parent;
             size_t sibling;
             size_t lexhead;
+            size_t type;
             readLEbytes(ifs,reinterpret_cast<char*>(&index),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&isTerm),sizeof(char));
             readLEbytes(ifs,reinterpret_cast<char*>(&head),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&parent),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&sibling),sizeof(size_t));
             readLEbytes(ifs,reinterpret_cast<char*>(&lexhead),sizeof(size_t));
+            readLEbytes(ifs,reinterpret_cast<char*>(&type),sizeof(size_t));
 
-            nodes[j] = TreeNode(index,isTerm,head,parent,sibling,lexhead);
+            nodes[j] = TreeNode(index,isTerm,head,parent,sibling,lexhead,type);
             //printf("NODE HEAD - %d\n",nodes[j].lexHead);
         }
         for(size_t j=0;j<numNodes;++j) {

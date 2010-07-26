@@ -4,7 +4,7 @@ import java.io.{DataOutputStream,FileOutputStream,BufferedOutputStream,File}
 import java.io.{DataInputStream,FileInputStream,BufferedInputStream}
 import util.LexicalHeads
 
-class TSGPackager {
+class TSGPackager(val pcfg : PCFG) {
 
   import scala.collection.mutable.HashMap
 
@@ -12,7 +12,16 @@ class TSGPackager {
   var lhsOfRule : Array[Int] = null //record the index of a rule's lhs
   var pcfgProbs : Array[Double] = null
 
-  def packageTrainer(pcfg : PCFG, dataIn : List[ParseTree with Markers], filename : String) {
+  def isTagged_?(n : NonTerminalNode) : Boolean = {
+    val str = pcfg.getSym(n)
+    if(str == "-LRB-" || str == "-RRB-")
+      return false
+    if(str.indexOf("-") > 0)
+      return true
+    false
+  }
+
+  def packageTrainer(dataIn : List[ParseTree with Markers], filename : String) {
     
     var throwout = 0
     var data = dataIn.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
@@ -75,11 +84,29 @@ class TSGPackager {
     betas.foreach(d => dos.writeDouble(d))
     alphas.foreach(d => dos.writeDouble(d))
 
-    dos.writeInt(data.length)
+
+
+    
+    val trimData = data.filter(t => {
+      var tag = false
+      t.nonterminals.foreach(n => {
+        if(isTagged_?(n))
+          tag = true
+      })
+    
+      tag
+    })
+
+    println("Dropped " + (data.length - trimData.length))
+
+    dos.writeInt(trimData.length)
     //println("NUM TREES = " + data.length)
-    data.foreach(t => {
+    trimData.foreach(t => {
       if(t.nonterminals.length > 255)
         throw new Exception()
+
+      
+
       writeTree(t,dos)
     })
     
@@ -88,6 +115,7 @@ class TSGPackager {
 
   
   def writeTree(tree : ParseTree with Markers with LexicalHeads, dos : DataOutputStream) : Unit = {
+
     
     val nts = tree.nonterminals
     val numNodes : Short = tree.nonterminals.length.toShort
@@ -145,6 +173,10 @@ class TSGPackager {
           else
             dos.writeInt(0)
           dos.writeInt(index) //a preterminal is automatically its own head word
+          if(isTagged_?(tn))
+            dos.writeInt(1)
+          else
+            dos.writeInt(0)
         }
 	    case pn : ProtoNode => {
           val rule = pn.rule
@@ -163,6 +195,13 @@ class TSGPackager {
           var hInd = 0
           while(!(headPT eq nts(hInd))) hInd += 1
           dos.writeInt(hInd)
+
+          var hasTag = isTagged_?(pn)
+          hasTag = (hasTag /: pn.children)((a,b) => a || isTagged_?(b))
+          if(hasTag) 
+            dos.writeInt(1)
+          else
+            dos.writeInt(0)
 
           var sibs = pn.children.map((n) => true).toArray
           sibs(sibs.length - 1) = false
@@ -184,7 +223,7 @@ class TSGPackager {
 
   
 
-  def unpack(pcfg : PCFG, data : Array[ParseTree with Markers], infile : String) : PTSG = {
+  def unpack(data : Array[ParseTree with Markers], infile : String) : PTSG = {
     val dis = new DataInputStream(
       new BufferedInputStream(new FileInputStream(new File(infile))))
 
@@ -203,7 +242,7 @@ class TSGPackager {
 
     val nTrees : Int = dis.readInt()
     
-    println("got data for " + nTrees + " trees")
+    //println("got data for " + nTrees + " trees")
 
     for{i <- 0 to (nTrees - 1)}{
     
@@ -213,6 +252,7 @@ class TSGPackager {
       for{i <- 1 to nNodes}{
         dis.readInt()
         dis.readByte()
+        dis.readInt()
         dis.readInt()
         dis.readInt()
         dis.readInt()

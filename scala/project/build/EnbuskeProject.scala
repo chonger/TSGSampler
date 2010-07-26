@@ -11,7 +11,6 @@ class Env(working : String) {
 
 class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
 {
-
   val dataDir = "/home/chonger/data/"
 
   val optns = Nil
@@ -20,17 +19,17 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   override def mainClass = Some("enbuske.programs.Enbuske")
 
   lazy val pack = runTask(Some("enbuske.programs.PackTSG"),runClasspath,
-                                List(dataDir + "small.txt",dataDir + "fft.pack")
+                                List(dataDir + "fft.unk.txt",dataDir + "fft.pack")
                               ) dependsOn(compile)
   
   lazy val unpack = runTask(Some("enbuske.programs.UnpackToText"),runClasspath, 
-                            List(dataDir + "small.txt",
+                            List(dataDir + "fft.unk.txt",
                                  dataDir + "fft.cpack",
                                  dataDir + "fft.seg")) dependsOn(compile)
   
   lazy val fft = {
     val trees = dataDir + "fft.unk.txt"
-    val cpack = dataDir + "fft9.cpack"
+    val cpack = dataDir + "fft.cpack"
     val toTag = dataDir + "23.unk.txt"
     val outfile = dataDir + "23FFT.txt"
     val optns = List(trees,cpack,toTag,outfile)

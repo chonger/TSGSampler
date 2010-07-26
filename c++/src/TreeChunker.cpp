@@ -18,6 +18,8 @@ TreeChunker::TreeChunker(size_t* lhsmap_, double* pcfg_,size_t numRules_,
     alpha(alpha_), trees(trees_), ntrees(ntrees_), nLHS(nLHS_),
     resampleA(true), resampleB(true) {
 
+
+    verb = false;
     stop = false;
     
     nulltree1 = new ParseTree(NULL,NULL,0);
@@ -63,6 +65,23 @@ TreeChunker::TreeChunker(size_t* lhsmap_, double* pcfg_,size_t numRules_,
 
     }
     */
+
+    for(size_t i=0;i<ntrees;++i) {
+        ParseTree& pt = trees[i];
+        bool hasTag = false;
+        for(size_t j=0;j<pt.size;++j) {
+
+            if(pt.nodelist[j].type == 1)
+                hasTag = true;
+     
+        }
+        if(!hasTag) {
+            printf("NO TAGS IN SENTENCE %d\n",i);
+            throw "!";
+        }
+    }
+    
+    
 }
 
 void TreeChunker::resample(int iterations, double smoothS, double smoothF, size_t distSize, size_t jointFreq) {
@@ -118,8 +137,27 @@ void TreeChunker::resample(int iterations, double smoothS, double smoothF, size_
             
             //}
         outstream << logl << "\n";
-        //treemap.resize(0);
 
+
+        //documentation says that this "increases bucket count to at least 0
+        //not really sure why we should use it though
+        treemap.resize(0);
+
+        /**
+        size_t c1 = 0;
+        for(size_t j=0;j<nLHS;++j) {
+            c1 += lhsCounts[j];
+        }
+        printf("TOTAL HEADS FROM NLHS - %d\n",c1);
+
+        size_t c2 = 0;
+        for(TreeHashMap::iterator iter = treemap.begin();
+            iter != treemap.end();++iter) {
+            c2 += iter->second;
+        }
+        printf("SUM OF ALL COUNTS - %d\n",c2);
+        */
+        
         /**
         double dist = 0.0;
         it = treemap.begin();
@@ -536,10 +574,11 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
         }   
     }
 
+
+    double scaleFac = pow(10,100);
+
     //now that the segments are removed, we can calculate the segmentation Prob
-    double originalP = segmentationP(tree);
-    if(originalP > 1.0)
-        throw "BAD!";
+    double originalP = segmentationP(tree,scaleFac);
 
     
     //store the original segmentation for computation of Q later
@@ -592,7 +631,7 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
             throw "All nodes should be unmasked here";
         
         bool mark = sam.markers[i];
-
+        
         //        if(mark != 0) {
         //  mark = true;
         //}
@@ -601,10 +640,8 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
     
     }
 
-    double newP = segmentationP(tree);
-    if(newP > 1.0)
-        throw "BAD!";
-
+    double newP = segmentationP(tree,scaleFac);
+    
     /**
     if(same) {
         printf("SAME!\n");
@@ -625,8 +662,15 @@ void TreeChunker::sampleTree(ParseTree* tree, double smooth) {
     double a2 = originalQ / newQ;
     double a = a1 * a2;
     bool accept = true;
+
+    if(a != a) {
+        printf("Accept ratio is nan\n");
+        printf("newP %E oldP %E newQ %E oldQ %E\n",newP,originalP,newQ,originalQ);
+        throw "!";
+    }
+    
     avgAcc += a;
-    //printf("A - %E\n",a);
+    
     if(a < 1) {
         double rDub = (double) rand() / ((double)RAND_MAX + 1.0);
         if(rDub > a)
@@ -708,7 +752,7 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
     tree->markers[offset] = true;
     
     Segment top = Segment(tree,headOffset);
-    
+
     TreeHashMap::iterator topIter = treemap.find(top);
     size_t topCount = 0;
     if(wasCut) { //top must be in the map
@@ -725,7 +769,7 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
         if(topIter != treemap.end())
             topCount = topIter->second;
     }
-    double topScore = score(top);
+    std::pair<double,double> topScore = scaleScore(top);
     
     Segment bottom = Segment(tree,offset);
     TreeHashMap::iterator bottomIter = treemap.find(bottom);
@@ -745,7 +789,7 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             bottomCount = bottomIter->second;
     }
     
-    double bottomScore = score(bottom);
+    std::pair<double,double> bottomScore = scaleScore(bottom);
     
     size_t treeKronDel = top.equals(bottom) ? 1 : 0;
     size_t lhsKronDel = lhsMap[head.index] == lhsMap[node.index] ? 1 : 0;
@@ -785,20 +829,45 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
         //else it stays at zero
     }
 
-    double joinScore = score(join);
+    std::pair<double,double> joinScore = scaleScore(join);
     
-
-    double unSmoothedJ = (joinCount + headAlpha * joinScore) / (headAlpha + headLHSTotal);    
+    //printf("smooth %E\n",smooth);
+    double unSmoothedJ = (joinCount * joinScore.second + headAlpha * joinScore.first) / (headAlpha + headLHSTotal);    
     double joinProb = pow(unSmoothedJ,smooth);
-    double topProb = (topCount + headAlpha * topScore) / (headAlpha + headLHSTotal);
-    double bottomProb = (treeKronDel + bottomCount + myAlpha * bottomScore) /
+    double topProb = (topCount * topScore.second + headAlpha * topScore.first) / (headAlpha + headLHSTotal);
+    double bottomProb = (bottomScore.second * (treeKronDel + bottomCount) + myAlpha * bottomScore.first) /
         (lhsKronDel + myLHSTotal + myAlpha);
+
+    double scFac = topScore.second * bottomScore.second / joinScore.second;
+    
     double combProb = pow(topProb * bottomProb,smooth);    
-    double cutoff = combProb / (joinProb + combProb);
+    double cutoff = combProb / (joinProb * scFac + combProb);
     float randval = (rand() / ((float) RAND_MAX + 1));
 
-    //printf("CUTOFF at %f - join %f comb %f, randval %f\n",cutoff,joinProb,combProb,randval);
 
+    if(combProb == 0 && joinProb == 0) {
+        top.printMe();
+        bottom.printMe();
+        join.printMe();
+        for(NodeOffset k=0;k<tree->size;++k) {
+            printf("%d",tree->markers[k]);
+        }
+        printf("\n");
+        for(NodeOffset k=0;k<tree->size;++k) {
+            printf("%d",tree->nodelist[k].type);
+        }
+        printf("\n");
+        printf("at index %d\n",offset);
+        printf("ALL PROBS ARE ZERO\n");
+        throw "!";
+    }
+    /**
+    if(wasCut) {
+        printf("JOIN %E TOP %E BOT %E\n",joinScore,topScore,bottomScore);
+    }
+    */
+    
+    //printf("CUTOFF at %f - join %E comb %E, randval %f\n",cutoff,joinProb,combProb,randval);
 
     //TOFDO _ REMOVE THESE DEBUG VARIABLES
     bool doCut = false;
@@ -900,11 +969,43 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             }
 #endif          
         } 
-    } else {
+    } else { //
         doCut = true;
         //the marker was set to false in this method, so set it true
         tree->markers[offset] = true;
         if(!wasCut) {
+
+            bool ok = false;
+            for(Segment::iterator iter = top.begin();iter != top.end();++iter) {
+                if(iter.n->type != 0)
+                    ok = true;
+            }
+            if(!ok) {
+                printf("no tags in top\n");
+                throw "!";
+            }
+
+            ok = false;
+            for(Segment::iterator iter = bottom.begin();iter != bottom.end();++iter) {
+                if(iter.n->type != 0)
+                    ok = true;
+            }
+            if(!ok) {
+                printf("no tags in bottom\n");
+                printf("%E %E %E\n",topScore.first,bottomScore.first,joinScore.first);
+                printf("%E %E %E\n",topScore.second,bottomScore.second,joinScore.second);
+                printf("%E %E %E\n",randval,cutoff,scFac);
+                verb = true;
+                top.printMe();
+                bottom.printMe();
+                join.printMe();
+                std::pair<double,double> joinScore = scaleScore(join);
+                throw "!";
+            }
+
+            
+
+            
             numChanged++;
             bool insertTop = false;
             bool insertBot = false;
@@ -998,6 +1099,16 @@ void TreeChunker::sampleNode(ParseTree* tree, NodeOffset offset, double smooth) 
             
         }
     }
+
+
+    double prob = segmentationP(tree);
+    if(prob == 0) {
+        printf("NOW ITS ZERO\n");
+        throw "!";
+    }
+        
+
+    
 }
 
 double TreeChunker::scoreDP(Segment& seg, double smooth) {
@@ -1012,19 +1123,40 @@ double TreeChunker::scoreDP(Segment& seg, double smooth) {
     if(iter != treemap.end())
         count = iter->second;
 
-    double baseScore = score(seg);
+    std::pair<double,double> baseScore = scaleScore(seg);
     
-    double unsmoothed = (count + al * baseScore) / (al + total);
-    return pow(unsmoothed,smooth);
+    //printf("%E\n",baseScore);
+
+    if(baseScore.first / baseScore.second == 0) {
+        return -DBL_MAX;
+    }
+    
+    double unsmoothed = (count * baseScore.second + al * baseScore.first) / (al + total);
+    if(verb)
+        printf("count %d, total %d, al %E, base %E / %E \n",count,total,al,baseScore.first,baseScore.second);
+    
+    return pow(unsmoothed / baseScore.second,smooth);
 }
 
-double TreeChunker::score(Segment& seg) {
+std::pair<double,double> TreeChunker::scaleScore(Segment& seg) {
     double score = 1.0;
+    double scale = 1.0;
     bool first = true;
+
+    bool hasTag = false;
+
+    double maxScale = pow(10,300);
+    
     for(Segment::iterator iter = seg.begin();iter != seg.end();++iter) {
+
+        if(scale < maxScale) {
+            score *= 100;
+            scale *= 100;
+        }
         
         int index = iter.n->index;
         size_t lhs = lhsMap[index];
+        
         if(iter.stub) {
             //triggers if a node is not a terminal but is a leaf
             //so it must have children, maybe a parent. ROOT -> S is the exception
@@ -1032,23 +1164,112 @@ double TreeChunker::score(Segment& seg) {
             //if leaf and parent have the same head, we must be cutting a head chain
             //b/c one of the leaf's children has the same head (by def)
 
-            TreeNode* leaf = iter.n;
-            //par will be the same node at the root
-            TreeNode& par = seg.ptree->nodelist[iter.offset - leaf->parent];
-            if(leaf->lexHead == par.lexHead) {
-                score *= 1.0;
+            /**
+            if(iter.offset != 0) {
+                TreeNode* leaf = iter.n;
+                //par will be the same node at the root
+                TreeNode& par = seg.ptree->nodelist[iter.offset - leaf->parent];
+                if(leaf->lexHead == par.lexHead) {
+                    return 0.0;
+                }
             }
+            */
 
-            score *= (1.0 - beta[lhs]);
+            if(verb)
+                printf("STUB\n");
+            
+            score *= beta[lhs];
         } else {
+
+            if(iter.n->type == 1)
+                hasTag = true;
+
+            
             score *= pcfg[index]; //PCFG score
+    
             if(!first)
-                score *= beta[lhs];
+                score *= (1.0 - beta[lhs]);
             else
                 first = false;
         }
     }
-    return score;
+
+    
+    if(score == 0) {
+        printf("UNDERFLOW\n");
+        //throw "!";
+    }
+    
+    if(hasTag)
+        return std::make_pair(score,scale);
+    else
+        return std::make_pair(0,1.0);
+
+}
+
+
+double TreeChunker::score(Segment& seg) {
+    return score(seg,1.0);
+}
+
+double TreeChunker::score(Segment& seg, double scale) {
+    double score = scale;
+    bool first = true;
+
+    bool hasTag = false;
+    
+    for(Segment::iterator iter = seg.begin();iter != seg.end();++iter) {
+
+        
+        int index = iter.n->index;
+        size_t lhs = lhsMap[index];
+
+    
+        
+        if(iter.stub) {
+            //triggers if a node is not a terminal but is a leaf
+            //so it must have children, maybe a parent. ROOT -> S is the exception
+            //the "good" case is one where the leaf and its parent have different heads
+            //if leaf and parent have the same head, we must be cutting a head chain
+            //b/c one of the leaf's children has the same head (by def)
+
+            /**
+            if(iter.offset != 0) {
+                TreeNode* leaf = iter.n;
+                //par will be the same node at the root
+                TreeNode& par = seg.ptree->nodelist[iter.offset - leaf->parent];
+                if(leaf->lexHead == par.lexHead) {
+                    return 0.0;
+                }
+            }
+            */
+            
+            score *= beta[lhs];
+        } else {
+
+            if(iter.n->type == 1)
+                hasTag = true;
+
+            
+            score *= pcfg[index]; //PCFG score
+    
+            if(!first)
+                score *= (1.0 - beta[lhs]);
+            else
+                first = false;
+        }
+    }
+
+    
+    if(score == 0) {
+        printf("UNDERFLOW\n");
+        //throw "!";
+    }
+
+    if(hasTag)
+        return score;
+    else
+        return 0;
 }
 
 void TreeChunker::shuffle() {
@@ -1117,6 +1338,7 @@ void TreeChunker::packResults(const char* filename) {
             writeBEbytes(ofs,reinterpret_cast<char*>(&(n.parent)),sizeof(size_t));
             writeBEbytes(ofs,reinterpret_cast<char*>(&(n.sibling)),sizeof(size_t));
             writeBEbytes(ofs,reinterpret_cast<char*>(&(n.lexHead)),sizeof(size_t));
+            writeBEbytes(ofs,reinterpret_cast<char*>(&(n.type)),sizeof(size_t));
         }
         
         for(size_t j=0;j<numNodes;++j) {
@@ -1132,27 +1354,83 @@ void TreeChunker::packResults(const char* filename) {
 
 double TreeChunker::logLikelihood() {
     double ll = 0.0;
+    verb = true;
+
+    for(size_t i=0;i<1;++i) {
+        ParseTree& tree = trees[i];
+        for(NodeOffset j=0;j<tree.size;++j) {
+            if(tree.markers[j]) {
+                Segment seg = Segment(&tree,j);
+                double segScore = scoreDP(seg,1.0);
+                if(segScore == 0) {
+                    for(NodeOffset k=0;k<tree.size;++k) {
+                        printf("%d",tree.markers[k]);
+                    }
+                    printf("\n");
+                    for(NodeOffset k=0;k<tree.size;++k) {
+                        printf("%d",tree.nodelist[k].type);
+                    }
+                    printf("\n");
+                    printf("at index %d\n",j);
+                    printf("!!!!ZERO SCORE ON TREE %d\n",i);
+                    throw "!";
+                }
+            }
+        } 
+    }
+    printf("ITS CLEAR\n");
+
+
     
+    treemap.clear();
     for(size_t i=0;i<ntrees;++i) {
         ParseTree& tree = trees[i];
         for(NodeOffset j=0;j<tree.size;++j) {
             if(tree.markers[j]) {
                 Segment seg = Segment(&tree,j);
                 double segScore = scoreDP(seg,1.0);
+                if(segScore == 0) {
+                    for(NodeOffset k=0;k<tree.size;++k) {
+                        printf("%d",tree.markers[k]);
+                    }
+                    printf("\n");
+                    for(NodeOffset k=0;k<tree.size;++k) {
+                        printf("%d",tree.nodelist[k].type);
+                    }
+                    printf("\n");
+                    printf("at index %d\n",j);
+                    printf("ZERO SCORE ON TREE %d\n",i);
+                    throw "!";
+                }
                 ll += log(segScore);
+
+                TreeHashMap::iterator it = treemap.find(seg);
+                if(it == treemap.end())
+                    treemap.insert(make_pair(seg,1));
+                else {
+                    it->second = it->second + 1;
+                }
+                
             }
-        }
+        } 
     }
-    
+    verb = false;
     return ll;
 }
 
+
+
 double TreeChunker::segmentationP(ParseTree* tree) {
-    double ret = 1.0;
+    return segmentationP(tree,1.0);
+}
+
+double TreeChunker::segmentationP(ParseTree* tree, double scale) {
+    double ret = scale;
     for(NodeOffset j=0;j<tree->size;++j) {
         if(tree->markers[j]) {
             Segment seg = Segment(tree,j);
-            double scr = scoreDP(seg,1.0);
+            double scr = scoreDP(seg,1.0);            
+            
             ret *= scr;
         }
     }

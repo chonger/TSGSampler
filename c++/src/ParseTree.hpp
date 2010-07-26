@@ -4,8 +4,19 @@
 #include <utility>
 #include <stdio.h> //for printf
 
+/**
+ *  This file defines TreeNode, ParseTree, and Segment, the main
+ *  data structures used in the sampler.  A Segment corresponds
+ *  to an elementary tree in the literature on TSG's.  A ParseTree
+ *  is basically an ordered list of TreeNodes, representing a parse
+ *  tree in DFS order.
+ */ 
+
+
 typedef int NodeIndex; //max rule index is 31006, but give it lots of room
 typedef unsigned char NodeOffset; //maximum treebank tree size is 395, making max nts < 256
+//NOTE : The scala packager currently discards trees with more than 255 nonterminals
+//       This is only because of this choice of data type
 
 struct TreeNode {
     TreeNode() {}
@@ -14,10 +25,11 @@ struct TreeNode {
              NodeOffset head_,
              NodeOffset parent_,
              NodeOffset sibling_,
-             NodeOffset lexHead_) :
+             NodeOffset lexHead_,
+             char type_) :
         index(index_), isTerminal(isTerminal_),
         head(head_), parent(parent_), sibling(sibling_),
-        lexHead(lexHead_) {};
+        lexHead(lexHead_), type(type_) {};
 
     TreeNode& operator=(const TreeNode& o) {
         index = o.index;
@@ -26,15 +38,17 @@ struct TreeNode {
         parent = o.parent;
         sibling = o.sibling;
         lexHead = o.lexHead;
+        type = o.type;
         return *this;
     }
     
     NodeIndex index;
     bool isTerminal;
-    NodeOffset head;
+    NodeOffset head;    //the root node of the segment containing this node
     NodeOffset parent;
-    NodeOffset sibling;
-    NodeOffset lexHead;
+    NodeOffset sibling; //right sibling
+    NodeOffset lexHead; //the lexical head
+    char type; //right now, 1 if rule has a FFT, 0 otherwise
 };
 
 struct ParseTree {
@@ -131,19 +145,18 @@ public:
     bool* markers;
     NodeOffset headIndex;
 
-
-    //Kill me eventually
+    //#ifdef TSGDEBUG
     void printMe() const {
         printf("SEGMENT PRINTOUT\n");
         for(Segment::iterator iter = begin(); iter != end(); ++iter) {
             if(!iter.stub)
-                printf("NODE %d (%d)\n",iter.offset,iter.n->index);
+                printf("NODE %d (%d) (HX %d) %d\n",iter.offset,iter.n->index,iter.n->lexHead,iter.n->type);
             else
-                printf("STUB %d\n",iter.offset);
+                printf("STUB %d (HX %d) %d\n",iter.offset,iter.n->lexHead,iter.n->type);
         }
         printf("\n");
     }
-
+    //#endif
     
 private:
     iterator finish;

@@ -59,17 +59,19 @@ private:
      * The probability of an elementary tree under the DP
      */ 
     double scoreDP(Segment& seg, double smooth);
-
     
     /**
      * The probability of an elementary tree under the base distribution
      */ 
     double score(Segment& seg);
-
+    double score(Segment& seg, double scale);
+    std::pair<double,double> scaleScore(Segment& seg);
+    
     void shuffle();
 
     double logLikelihood();
     double segmentationP(ParseTree* tree);
+    double segmentationP(ParseTree* tree,double scale);
 
     void resampleAlpha();
     void resampleAlphaMH();
@@ -111,7 +113,7 @@ private:
     size_t numChanged;
     size_t totalLabels;
 
-
+    bool verb;
     
 };
 

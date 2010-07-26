@@ -20,8 +20,8 @@ object FormFunctionTag {
 
     val tDist = new PCFGDistribution(pcfg)
     
-    val packer = new TSGPackager()
-    val ptsg = packer.unpack(pcfg,data.toArray,args(1))
+    val packer = new TSGPackager(pcfg)
+    val ptsg = packer.unpack(data.toArray,args(1))
 
     ptsg.addPCFGRules(toTag)
 

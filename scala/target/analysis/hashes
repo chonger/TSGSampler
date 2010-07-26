@@ -1,21 +1,21 @@
 #Source Hashes
-#Sat Jul 03 16:01:56 EDT 2010
-src/main/scala/enbuske/parse/tsg/PTSG.scala=8d6892eaa17caa0f280937247fbcafeb1c6052b8
-src/main/scala/enbuske/programs/FormFunctionTag.scala=d99926b4b04ebfd76b35e25aeb3c70f5cd81e5f6
+#Thu Jul 22 16:09:49 EDT 2010
+src/main/scala/enbuske/parse/tsg/PTSG.scala=9b1c6582c6c702dd4cf1462a25027697076255ad
+src/main/scala/enbuske/programs/FormFunctionTag.scala=64f23f08926a70120bff4e72c004c02bb7c92412
 src/main/scala/enbuske/util/Util.scala=36ed5446e0eb6c021cbb41705fc873f81cc73156
 src/main/scala/enbuske/test/TestLexHead.scala=7201bd161ab6f32443e9f3b9d0c53e138715ed85
 src/main/scala/enbuske/programs/TSGGen.scala=8dab47636697f4f6647f91154798b36b7d47f452
 src/main/scala/enbuske/parse/ParseTypes.scala=4cd004c320dc9e283e46db83bc49388947ddc3d3
 src/main/scala/enbuske/parse/ParseTreeComponents.scala=e445ff92663389e0fb14c29df7812b243e275dde
-src/main/scala/enbuske/programs/PackTSG.scala=7f68c8e2866c791d9348f5903e1daa4e63df28b4
-src/main/scala/enbuske/programs/Enbuske.scala=26e05bb05a45b3a5d02c8c963df6deebe7455a2b
+src/main/scala/enbuske/programs/PackTSG.scala=aeedabde18afd10e156e63243c02c446c507035f
+src/main/scala/enbuske/programs/Enbuske.scala=215e98e0d6dc20d1ad9b3976d6c5b0874b3c4a6e
 src/main/scala/enbuske/parse/ParseTree.scala=14462482643a87e13a3c87051110cb2538937c04
-src/main/scala/enbuske/parse/tsg/TSGPackager.scala=75f733804d9af9687d1d27d502c0e20eab0405f1
+src/main/scala/enbuske/parse/tsg/TSGPackager.scala=b1be121aa4c2f59cd2540b242bf083874eab10ce
 src/main/scala/enbuske/parse/tsg/TSGTree.scala=fe40abf5f5d068d833fdc52e70edce62d30e6504
 src/main/scala/enbuske/parse/PCFGPrinter.scala=135b45728652650ee0be124c0855acc00f5c91f9
 src/main/scala/enbuske/parse/generate/Jabberwock.scala=4ca6d0fcdaf3a41655ee7a1022250f978e4818b9
-src/main/scala/enbuske/programs/UnpackToText.scala=66b1b310a07636e7c593ea29a9ba941cfff495cb
-src/main/scala/enbuske/programs/PrepNParse.scala=1810a0779cc750fbcde9069eb14f04738b4add62
+src/main/scala/enbuske/programs/UnpackToText.scala=e46915f85da34c1b5d2aa786438e911588320396
+src/main/scala/enbuske/programs/PrepNParse.scala=a9847fbf7191c3c3c2f6f59c6bcec537bcfd8b3a
 src/main/scala/enbuske/parse/tsg/TreeDistribution.scala=6c397fbc679eb9dd7d97804add53a2f6f5d4f452
 src/main/scala/enbuske/util/Unker.scala=93613e07016071f97e858f35baec50c4b19ec42f
 src/main/scala/enbuske/parse/tsg/TrainingTrees.scala=8ea1cea749acf3fefba316bb25bf317b36eee267

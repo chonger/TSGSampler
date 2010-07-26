@@ -22,8 +22,8 @@ object UnpackToText {
 
     val data = raw.map(r => new ParseTree(r.root) with Markers)
     
-    val packer = new TSGPackager()
-    val ptsg = packer.unpack(pcfg,data.toArray,args(1))
+    val packer = new TSGPackager(pcfg)
+    val ptsg = packer.unpack(data.toArray,args(1))
     
     val bw = new BufferedWriter(new FileWriter(new File(args(2))))
     ptsg.counts.elements.toList.sort((a,b) => {a._2 > b._2}).foreach(_ match {
