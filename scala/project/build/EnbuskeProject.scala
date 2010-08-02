@@ -19,16 +19,16 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   override def mainClass = Some("enbuske.programs.Enbuske")
 
   lazy val pack = runTask(Some("enbuske.programs.PackTSG"),runClasspath,
-                                List(dataDir + "fft.unk.txt",dataDir + "fft.pack")
+                                List(dataDir + "fft.trim.txt",dataDir + "fft.pack")
                               ) dependsOn(compile)
   
   lazy val unpack = runTask(Some("enbuske.programs.UnpackToText"),runClasspath, 
-                            List(dataDir + "fft.unk.txt",
+                            List(dataDir + "fft.trim.txt",
                                  dataDir + "fft.cpack",
                                  dataDir + "fft.seg")) dependsOn(compile)
   
   lazy val fft = {
-    val trees = dataDir + "fft.unk.txt"
+    val trees = dataDir + "fft.trim.txt"
     val cpack = dataDir + "fft.cpack"
     val toTag = dataDir + "23.unk.txt"
     val outfile = dataDir + "23FFT.txt"
@@ -49,6 +49,9 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
    *
    **/
 
+  lazy val trim = runTask(Some("enbuske.programs.TrimTags"),
+                           runClasspath,List(dataDir + "fft.unk.txt",
+                                             dataDir + "fft.trim.txt")) dependsOn(compile)
 
   lazy val testLexHeads = {
     val trees = dataDir + "24.unk.txt"

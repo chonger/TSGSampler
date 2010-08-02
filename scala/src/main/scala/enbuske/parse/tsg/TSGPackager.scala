@@ -78,42 +78,36 @@ class TSGPackager(val pcfg : PCFG) {
 
     dos.writeInt(pcfg.nextSymID + 1)
 
+
+    dos.writeInt(data.length)
+    //println("NUM TREES = " + data.length)
+    data.foreach(t => {
+      if(t.nonterminals.length > 255)
+        throw new Exception()
+
+      writeTree(t,dos)
+    })
+    
     val betas = for(i <- 1 to numLHS) yield .5
     val alphas = for(i <- 1 to numLHS) yield 100
 
     betas.foreach(d => dos.writeDouble(d))
     alphas.foreach(d => dos.writeDouble(d))
 
+    dos.close
+  }
 
-
-    
-    val trimData = data.filter(t => {
+  def trimTagged(dIn : List[ParseTree with Markers]) : List[ParseTree with Markers] = {
+    dIn.filter(t => {
       var tag = false
       t.nonterminals.foreach(n => {
         if(isTagged_?(n))
           tag = true
-      })
-    
+      })    
       tag
     })
-
-    println("Dropped " + (data.length - trimData.length))
-
-    dos.writeInt(trimData.length)
-    //println("NUM TREES = " + data.length)
-    trimData.foreach(t => {
-      if(t.nonterminals.length > 255)
-        throw new Exception()
-
-      
-
-      writeTree(t,dos)
-    })
-    
-    dos.close
   }
 
-  
   def writeTree(tree : ParseTree with Markers with LexicalHeads, dos : DataOutputStream) : Unit = {
 
     
@@ -233,12 +227,7 @@ class TSGPackager(val pcfg : PCFG) {
     for{i <- 1 to nRules}{dis.readInt}
 
     val nLHS = dis.readInt()
-    val betas = (for{i <- 1 to nLHS} yield {
-      dis.readDouble()
-    }).toArray
-    val alphas = (for{i <- 1 to nLHS} yield {
-      dis.readDouble()
-    }).toArray
+    
 
     val nTrees : Int = dis.readInt()
     
@@ -269,7 +258,14 @@ class TSGPackager(val pcfg : PCFG) {
       }
     }
 
-    
+    val alphas = (for{i <- 1 to nLHS} yield {
+      dis.readDouble()
+    }).toArray    
+    val betas = (for{i <- 1 to nLHS} yield {
+      dis.readDouble()
+    }).toArray
+
+
 
     val counts = new HashMap[ParseTree,Int]()
 

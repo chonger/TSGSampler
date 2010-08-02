@@ -1,5 +1,6 @@
 #include "ParseTree.hpp"
 #include "TreeChunker.hpp"
+#include "DP.hpp"
 #include <stdio.h>
 #include <string>
 #include <fstream>
@@ -10,12 +11,6 @@
 
 TreeChunker* chunker = NULL;
 std::string outpath;
-
-void readLEbytes(std::ifstream& ifs, char* data, size_t bytes) {
-    for(int i = bytes - 1;i>=0;--i) {
-        ifs.read(data + i,1);
-    }
-}
 
 void abortFunc(int sig) {
     if(chunker != NULL)
@@ -37,7 +32,8 @@ struct ScheduleItem {
 
 
 int main(int argc, const char* argv[]) {
-    srand(time(NULL));
+    //srand(time(NULL));
+    srand(123);
     
     signal(SIGABRT,&abortFunc);
     signal(SIGTERM,&abortFunc);
@@ -82,19 +78,7 @@ int main(int argc, const char* argv[]) {
         }
     }
     
-    //read betas
-    double* betas = new double[numLHS];
-    for(size_t i=0;i<numLHS;++i) {
-        readLEbytes(ifs,reinterpret_cast<char*>(betas + i),sizeof(double));
-        //printf("BETA = %f\n",betas[i]);
-    }
-
-    //read alphas
-    double* alphas = new double[numLHS];
-    for(size_t i=0;i<numLHS;++i) {
-        readLEbytes(ifs,reinterpret_cast<char*>(alphas + i),sizeof(double));
-        //printf("ALPHA = %f\n",alphas[i]);
-    }
+    
 
     size_t numTrees;
     readLEbytes(ifs,reinterpret_cast<char*>(&numTrees),sizeof(size_t));
@@ -138,15 +122,21 @@ int main(int argc, const char* argv[]) {
 
         ptrees[i] = ParseTree(nodes,markers,numNodes);
     }
-    ifs.close();        
 
-    chunker = new TreeChunker(lhsmap,probs,numRules,betas,alphas,ptrees,numTrees,numLHS);
+
+
+    TreeData* tData = new TreeData(lhsmap,probs,numRules,ptrees,numTrees,numLHS);    
+
+    chunker = new TagChunker(tData,ifs,4,100,100); 
+
+    ifs.close();            
+    
     outpath = argv[2];
     
     printf("Starting to Sample\n");
 
     if(argc > 5 && std::string(argv[5]) == "cont")
-        chunker->outstream.open(argv[3],ios::app);
+        chunker->outstream.open(argv[3],std::ios::app);
     else
         chunker->outstream.open(argv[3]);
 
@@ -168,7 +158,7 @@ int main(int argc, const char* argv[]) {
         sfs >> st;
         sfs >> en;
 
-        printf("SCHEDULE - %d iterations smoothed from %f to %f\n",nIter,st,en);
+        printf("SCHEDULE - %d iterations with smoothing disabled\n",nIter);
         
         ScheduleItem item(nIter,st,en);
         
@@ -177,7 +167,7 @@ int main(int argc, const char* argv[]) {
     sfs.close();
     
     for(std::vector<ScheduleItem>::iterator it = schedule.begin(); it != schedule.end(); ++it) {
-        chunker->resample(it->nIter,it->smoothS,it->smoothE,0,0);
+        chunker->resample(it->nIter);
     }
 
     chunker->outstream.close();

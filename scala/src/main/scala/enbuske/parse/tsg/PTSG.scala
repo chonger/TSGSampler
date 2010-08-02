@@ -27,7 +27,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
         }
       })
     })
-    /**
+    
     println("Started with " + counts.size + " trees")
     var added = 0
     pcfgSet.foreach(pt => {
@@ -37,7 +37,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       }
     })
     println("ADDED " + added + " PCFG RULES")
-    */
+    
     fillCaches()
   }
 
@@ -165,7 +165,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     val tStr = pcfg.symbolStrings(target.symbol)
     val sStr = pcfg.symbolStrings(segNode.symbol)
 
-    if(sStr contains '-') {
+    
+    if((sStr contains '-') && (sStr.indexOf('-') > 0)) {
       val subS = sStr.substring(0,sStr.indexOf('-'))
 
       if(!subS.equals(tStr))
@@ -248,6 +249,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       //get the tagged symbols which could come from here
       val tags = getTagged(pcfg.symbolStrings(n.symbol))
       
+      var myCan = 0
+
       tags.map(t => {
 
         //get all trees which might start with this tag
@@ -255,10 +258,11 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
           walkWith(n,seg.root) != null
         })
         tCan += cand.length
+        myCan += cand.length
         nodeToSeg += (rw,t) -> cand
         /**
         if(cand.length == 0)
-          println("NO CANDS FOR " + PCFGPrinter.nodeString(pcfg,n))
+          println("NO CANDS FOR " + PCFGPrinter.nodeString(pcfg,n) + " with tag " + pcfg.symbolStrings(t))
         else {
           println("SEGS FROM " + PCFGPrinter.nodeString(pcfg,n) + " IN ")
           println(PCFGPrinter.treeToString(pcfg,tree))
@@ -271,6 +275,14 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
         println("DONE")
         */
       })
+
+      
+      if(myCan == 0) {
+          println("NO SEGS FROM " + PCFGPrinter.nodeString(pcfg,n))
+        println("There should be some segment from here")
+        throw new Exception();
+      }
+
     })
 
     println("TOTAL CANDIDATES = " + tCan)
@@ -314,7 +326,6 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
           //do nothing
         }
       }
-      
             
       val segs = nodeToSeg(rw,sym) //the (tag,List[segments]) that can overlay from this node
       
@@ -412,7 +423,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     calcOutside(tree.root) //assumes that root is never split
 
     //println("OUTSIDE DONE")
-/**
+    /**
     println("OUTSIDE ELEMENTS")
     outsideMap.foreach(_ match {
       case ((n,t),v) => {
@@ -435,13 +446,16 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
      *
      */
 
+    //holds the scores for each node as a list of tags and probability mass
     val scores = new HashMap[RefWrapper,List[Tuple2[ParseTypes.Symbol,Double]]]()
 
+    
     def scoreTag(target : NonTerminalNode, segNode : NonTerminalNode, score : Double) : Unit = {
-
+      
       val rw = new RefWrapper(target)
       var cur = scores.getOrElse(rw,Nil)
 
+      //add score to target's taglist entry for segNode's tag
       var found = false
       cur = cur.map(_ match {
         case (sym,scr) => {
@@ -458,8 +472,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       
       scores += rw -> cur
 
-
-      //recurse
+      
+      //recurse to the rest of the segment
       segNode match {
         case un : UnderspecifiedNode => {
           //do nothing
@@ -481,27 +495,33 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       }	
     }
 
-    //TODO : does this  double count the leaves?
+    
+    //called recursively on every nonterminal node in the tree
+    //gets all the segments that come off n and contributes their tag score
     def recScore(n : NonTerminalNode) : Unit = {
       val rw = new RefWrapper(n)
-      
+
       val tags = getTagged(pcfg.symbolStrings(n.symbol))
+      
+      //for each possible tag for this node
       tags.foreach(sym => {
+        //if some derivation gave node n the tag "sym" (o/w we never calculated the outside)
         if(outsideMap.isDefinedAt((new RefWrapper(n),sym))) {
           val segs = nodeToSeg(rw,sym) //the (tag,List[segments]) that can overlay from this node
 
           segs.foreach(e => {        
 
+            //the score from this segment is the segment's score times its insides and outside
             val leaves = walkWith(n,e.root) 
             var scr = scoreMap(e) * outsideMap(rw,sym)
             scr = (scr /: leaves)((a,l) => {
               a * insideMap(new RefWrapper(l._1),l._2)
             })
             /**
-             println("SCORE " + scr)
-             printNode(n)
-             printTree(e)
-             */
+            println("SCORE " + scr)
+            printNode(n)
+            printTree(e)
+            */
             scoreTag(n,e.root,scr)
           })
         }
@@ -509,6 +529,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
 
       n match {
         case in : InternalNode => {
+          
           in.children.foreach(c => {
             recScore(c)
           })
@@ -523,6 +544,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
 
     //println("Num nonterms = " + tree.nonterminals.length)    
 
+
+    //return best scoring tags for each node
     val ret = new HashMap[RefWrapper,ParseTypes.Symbol]()    
     scores.keySet.foreach(rw => {
       val tags = scores(rw)
@@ -531,19 +554,20 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
         throw new Exception()
 
       //printNode(rw.n)
+      //println(tags)
 
-      var maxV = 0.0
+      var maxV = -1.0
       var best : ParseTypes.Symbol = 0
 
       tags.foreach(_ match {
         case (t,d) => {
           
-          //println(d + " - " + pcfg.symbolStrings(t) + " == " + pcfg.symbolStrings(best))
-          
           if(d > maxV) {
             best = t
             maxV = d
           }
+
+          //println(d + " - " + pcfg.symbolStrings(t) + " == " + pcfg.symbolStrings(best))
         }
       })
       

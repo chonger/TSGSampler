@@ -67,6 +67,7 @@ public:
             markers = NULL;
         }
     }
+    
     ~ParseTree() {
         if(nodelist != NULL)
             delete[] nodelist;
@@ -75,6 +76,7 @@ public:
             delete[] markers;
         markers = NULL;
     }
+    
     ParseTree& operator=(const ParseTree& o) {
         if(nodelist != NULL)
             delete[] nodelist;

@@ -9,6 +9,7 @@ object FormFunctionTag {
     val pcfg = new DirectlyEstimatedPCFG()
     val raw = pcfg.read(args(0))
     val (syms,terms) = pcfg.size
+
     println("PCFG created with " + syms + " symbols and " + terms + " terminals")
     
     val data = raw.map(r => new ParseTree(r.root) with Markers)
@@ -46,8 +47,7 @@ object FormFunctionTag {
 	    }
       }
 
-      val newTree = new ParseTree(tag(tree.root))
-      
+      val newTree = new ParseTree(tag(tree.root))      
       /**
       println(PCFGPrinter.treeToString(pcfg,tree))
       taggings.foreach(_ match {
