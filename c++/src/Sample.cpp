@@ -127,7 +127,13 @@ int main(int argc, const char* argv[]) {
 
     TreeData* tData = new TreeData(lhsmap,probs,numRules,ptrees,numTrees,numLHS);    
 
-    chunker = new TagChunker(tData,ifs,4,100,100); 
+    double headCut = atoi(argv[5]);
+    double noTag = atoi(argv[6]);
+
+    printf("%E %E\n",headCut,noTag);
+
+    
+    chunker = new TagChunker(tData,ifs,4,headCut,noTag); 
 
     ifs.close();            
     

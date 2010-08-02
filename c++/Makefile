@@ -11,7 +11,14 @@ toy:
 	bin/tsgtest $(TOYARGS) log1 /home/chonger/data/schedule.txt
 
 run:
-	bin/tsgtest $(ARGS) runlog /home/chonger/data/schedule.txt
+	bin/tsgtest $(ARGS) runlog /home/chonger/data/schedule.txt 100 100
+
+
+trun:
+	bin/tsgtest /home/chonger/data/fft.pack /home/chonger/data/fft11.cpack runlog /home/chonger/data/schedule.txt 100 100 &
+	bin/tsgtest /home/chonger/data/fft.pack /home/chonger/data/fft01.cpack runlog /home/chonger/data/schedule.txt 1 100 &
+	bin/tsgtest /home/chonger/data/fft.pack /home/chonger/data/fft10.cpack runlog /home/chonger/data/schedule.txt 100 1 &
+	bin/tsgtest /home/chonger/data/fft.pack /home/chonger/data/fft00.cpack runlog /home/chonger/data/schedule.txt 1 1 &
 
 air:
 	bin/tsgtest $(ARGA) airlog /home/chonger/data/airplane/schedule.txt

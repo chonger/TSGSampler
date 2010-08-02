@@ -118,7 +118,7 @@ class HBase : public CGBBase {
 public:
     //arguments are penalties
     HBase(TreeData* tData_, std::ifstream& ifs,double* lhsCounts_,double headCut_,double noTag_) :
-          CGBBase(tData,ifs,lhsCounts), headCut(headCut_), noTag(noTag_) {
+          CGBBase(tData_,ifs,lhsCounts_), headCut(headCut_), noTag(noTag_) {
         
     }
 
@@ -218,9 +218,6 @@ public:
             readLEbytes(ifs,reinterpret_cast<char*>(alpha + i),sizeof(double));
             //printf("ALPHA = %f\n",alphas[i]);
         }
-
-        base = new CGBBase(tData,ifs,lhsCounts);
-         
     }
 
 
@@ -466,7 +463,7 @@ public:
 class NormalDP : public DP {
 public:
     NormalDP(TreeData* tData_, std::ifstream& ifs)
-        : DP(tData,ifs) {
+        : DP(tData_,ifs) {
         base = new CGBBase(tData,ifs,lhsCounts);
     }
 };
@@ -474,8 +471,7 @@ public:
 class TagDP : public DP {
 public:
     TagDP(TreeData* tData_, std::ifstream& ifs,double headCut, double noTag) :
-        DP(tData,ifs) {
-
+        DP(tData_,ifs) {
         base = new HBase(tData,ifs,lhsCounts,headCut,noTag);
     }
 };

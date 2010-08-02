@@ -98,7 +98,7 @@ private:
 
 class NormalChunker : public TreeChunker {
 public:
-    NormalChunker(TreeData* tData_, std::ifstream& ifs, size_t nThreads_,double headCut, double noTag) :
+    NormalChunker(TreeData* tData_, std::ifstream& ifs, size_t nThreads_) :
         TreeChunker(tData_,ifs,nThreads_) {
                 
         dp = new NormalDP(tData,ifs);
