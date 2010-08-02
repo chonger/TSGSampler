@@ -69,17 +69,19 @@ public:
     DP* dp;
     TreeData* tData;
 
-    
-private:
-    
+
+protected:
+
     void shuffleSamples();
     std::vector<std::vector<std::pair<ParseTree*,NodeOffset> > > samples;
     std::vector<ChunkThread*> threads;
 
-    
-    size_t nThreads;
 
+    size_t nThreads;
     
+private:
+    
+
     //EXTRA MONITORING VARIABLES
     
     size_t acceptCount;
@@ -94,15 +96,25 @@ private:
     
 };
 
+class NormalChunker : public TreeChunker {
+public:
+    NormalChunker(TreeData* tData_, std::ifstream& ifs, size_t nThreads_,double headCut, double noTag) :
+        TreeChunker(tData_,ifs,nThreads_) {
+                
+        dp = new NormalDP(tData,ifs);
+        
+        for(size_t i=0;i<nThreads;++i) {
+            DP* copy = new CopyDP(dp);
+            threads.push_back(new ChunkThread(copy,tData,samples[i]));            
+        }
+    }
+};
+
+
 class TagChunker : public TreeChunker {
 public:
     TagChunker(TreeData* tData_, std::ifstream& ifs, size_t nThreads_,double headCut, double noTag) :
-        : TreeChunker(tData_,ifs,nThreads_) {
-        
-        delete dp;
-        for(size_t i=0;i<nThreads;++i) {
-            delete threads[i];
-        }
+        TreeChunker(tData_,ifs,nThreads_) {
         
         dp = new TagDP(tData,ifs,headCut,noTag);
         
@@ -111,7 +123,7 @@ public:
             threads.push_back(new ChunkThread(copy,tData,samples[i]));            
         }
     }
-}
+};
 
 
 

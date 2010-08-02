@@ -32,11 +32,6 @@ TreeChunker::TreeChunker(TreeData* tData_, std::ifstream& ifs, size_t nThreads_)
         }
     }
 
-    dp = new DP(tData,ifs,0);
-
-    for(size_t i=0;i<nThreads;++i) {
-        DP* copy = new CopyDP(dp);
-        threads.push_back(new ChunkThread(copy,tData,samples[i]));            
 }
 
 void TreeChunker::shuffleSamples() {
