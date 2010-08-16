@@ -36,7 +36,7 @@ public:
         beta = new double[tData->nLHS];
         for(size_t i=0;i<tData->nLHS;++i) {
             readLEbytes(ifs,reinterpret_cast<char*>(beta + i),sizeof(double));
-            //printf("BETA = %f\n",betas[i]);
+            //printf("BETA = %f\n",beta[i]);
         }
     }
 
@@ -75,7 +75,7 @@ public:
         }
         
         if(score == 0) {
-            printf("UNDERFLOW\n");
+            printf("UNDERFLOW S\n");
             //throw "!";
         }
         
@@ -191,14 +191,14 @@ public:
 
 private:
     double headCut,noTag;
-
 };
 
 class DP {
 public:
 
     DP() {}
-    
+
+    //must call from tree data!
     DP(TreeData* tData_, std::ifstream& ifs) :
         tData(tData_)
     {
@@ -209,8 +209,6 @@ public:
         treemap.set_deleted_key(Segment(nulltree2,(NodeOffset)0));
 
         lhsCounts = new double[tData->nLHS];
-        
-        fromTreeData();
         
         //read alphas
         alpha = new double[tData->nLHS];
@@ -235,14 +233,19 @@ public:
         lhsCounts = NULL;
     }
 
-    void fromTreeData() {
+    virtual void fromTreeData() {
+        printf("BASE From Tree Data\n");
+        fromTData(0,tData->ntrees);
+    }
+    
+    void fromTData(size_t start, size_t end) {
 
         for(size_t i=0;i<tData->nLHS;++i) {
             lhsCounts[i] = 0;
         }
         treemap.clear();
         
-        for(size_t i=0;i<tData->ntrees;++i) {
+        for(size_t i=start;i<end;++i) {
             ParseTree& pt = tData->trees[i];
 
             for(size_t j=0;j<pt.size;++j) {
@@ -475,6 +478,40 @@ public:
         base = new HBase(tData,ifs,lhsCounts,headCut,noTag);
     }
 };
+
+class SpecDP : public DP {
+public:
+    SpecDP(DoubleData* tData_, std::ifstream& ifs) :
+        DP(tData_,ifs), dDat(tData_) {
+        base = new CGBBase(tData,ifs,lhsCounts);
+    }
+
+    void fromTreeData() {
+        printf("SPEC From Tree Data\n");
+        fromTData(dDat->backGend + 1,dDat->ntrees);
+    }
+
+private:
+    DoubleData* dDat;
+};
+
+
+class BackDP : public DP {
+public:
+    BackDP(DoubleData* tData_, std::ifstream& ifs)
+        : DP(tData_,ifs), dDat(tData_) {
+        base = new CGBBase(tData,ifs,lhsCounts);
+    }
+
+    void fromTreeData() {
+        printf("BACK From Tree Data\n");
+        fromTData(0,dDat->ntrees);
+    }
+    
+private:
+    DoubleData* dDat;
+};
+
 
 class CopyDP : public DP {
 public:

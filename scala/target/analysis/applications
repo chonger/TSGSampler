@@ -1,10 +1,14 @@
 #Classes with main methods
-#Mon Aug 02 13:58:30 EDT 2010
+#Thu Aug 12 15:26:52 EDT 2010
 src/main/scala/enbuske/programs/TSGGen.scala=enbuske.programs.TSGGen
+src/main/scala/enbuske/programs/StanNER.scala=enbuske.programs.StanNER
+src/main/scala/enbuske/programs/TrimTags.scala=enbuske.programs.TrimTags
 src/main/scala/enbuske/test/TestLexHead.scala=enbuske.test.TestLexHead
 src/main/scala/enbuske/programs/FormFunctionTag.scala=enbuske.programs.FormFunctionTag
-src/main/scala/enbuske/programs/TrimTags.scala=enbuske.programs.TrimTags
 src/main/scala/enbuske/programs/PackTSG.scala=enbuske.programs.PackTSG
+src/main/scala/enbuske/programs/PTClass.scala=enbuske.programs.PTClass
+src/main/scala/enbuske/programs/Pack2TSG.scala=enbuske.programs.Pack2TSG
+src/main/scala/enbuske/programs/Trinarize.scala=enbuske.programs.Trinarize
 src/main/scala/enbuske/programs/UnkTreebank.scala=enbuske.programs.UnkTreebank
 src/main/scala/enbuske/programs/Enbuske.scala=enbuske.programs.Enbuske
 src/main/scala/enbuske/programs/elit/GetPhrases.scala=enbuske.programs.elit.GetPhrases

@@ -19,17 +19,24 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   override def mainClass = Some("enbuske.programs.Enbuske")
 
   lazy val pack = runTask(Some("enbuske.programs.PackTSG"),runClasspath,
-                                List(dataDir + "fft.trim.txt",dataDir + "fft.pack")
+                                List(dataDir + "fft.unk.txt",dataDir + "fft.pack")
                               ) dependsOn(compile)
   
+  lazy val pack2 = runTask(Some("enbuske.programs.Pack2TSG"),runClasspath,
+                                List(dataDir + "train.unk.txt",
+                                     dataDir + "train.cpack",
+                                     dataDir + "airplane.txt",
+                                     dataDir + "air.pack")
+                              ) dependsOn(compile)
+
   lazy val unpack = runTask(Some("enbuske.programs.UnpackToText"),runClasspath, 
                             List(dataDir + "fft.trim.txt",
-                                 dataDir + "fft.cpack",
+                                 dataDir + "fft10.cpack",
                                  dataDir + "fft.seg")) dependsOn(compile)
   
   lazy val fft = {
     val trees = dataDir + "fft.trim.txt"
-    val cpack = dataDir + "fft.cpack"
+    val cpack = dataDir + "fft10.cpack"
     val toTag = dataDir + "23.unk.txt"
     val outfile = dataDir + "23FFT.txt"
     val optns = List(trees,cpack,toTag,outfile)
@@ -52,6 +59,18 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   lazy val trim = runTask(Some("enbuske.programs.TrimTags"),
                            runClasspath,List(dataDir + "fft.unk.txt",
                                              dataDir + "fft.trim.txt")) dependsOn(compile)
+
+  lazy val trinarize = runTask(Some("enbuske.programs.Trinarize"),
+                               runClasspath,List(dataDir + "fft.unk.txt",
+                                                 dataDir + "fft.tri.txt")) dependsOn(compile)
+
+  lazy val ptclass = runTask(Some("enbuske.programs.PTClass"),
+                               runClasspath,List(dataDir + "fft.unk.txt",
+                                                 dataDir + "fft.ptc.txt")) dependsOn(compile)
+
+  lazy val ner = runTask(Some("enbuske.programs.StanNER"),
+                               runClasspath,List(dataDir + "fft.txt",
+                                                 dataDir + "fft.ner.txt")) dependsOn(compile)
 
   lazy val testLexHeads = {
     val trees = dataDir + "24.unk.txt"

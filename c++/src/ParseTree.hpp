@@ -29,7 +29,7 @@ struct TreeNode {
              char type_) :
         index(index_), isTerminal(isTerminal_),
         head(head_), parent(parent_), sibling(sibling_),
-        lexHead(lexHead_), type(type_) {};
+        lexHead(lexHead_), type(type_), aspect(0) {};
 
     TreeNode& operator=(const TreeNode& o) {
         index = o.index;
@@ -39,6 +39,7 @@ struct TreeNode {
         sibling = o.sibling;
         lexHead = o.lexHead;
         type = o.type;
+        aspect = o.aspect;
         return *this;
     }
     
@@ -49,6 +50,7 @@ struct TreeNode {
     NodeOffset sibling; //right sibling
     NodeOffset lexHead; //the lexical head
     char type; //right now, 1 if rule has a FFT, 0 otherwise
+    char aspect;
 };
 
 struct ParseTree {

@@ -18,7 +18,7 @@ object PackTSG {
     pcfg.process(raw)
     val data = raw.map(r => new ParseTree(r.root) with Markers)
     val packer = new TSGPackager(pcfg)
-    packer.packageTrainer(data,args(1))
+    packer.packageOne(data,args(1))
     1
   }
 }

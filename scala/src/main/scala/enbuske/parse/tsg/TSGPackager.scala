@@ -21,10 +21,85 @@ class TSGPackager(val pcfg : PCFG) {
     false
   }
 
-  def packageTrainer(dataIn : List[ParseTree with Markers], filename : String) {
+  def packageTwo(data : List[ParseTree with Markers], 
+                 infile : String,
+                 dataSpecI : List[ParseTree with Markers],
+                 filename : String) = {
+
+    //read packed trees from a previous sample
+
+    val dis = new DataInputStream(
+      new BufferedInputStream(new FileInputStream(new File(infile))))
+
+    //burn through a bunch of data
+    val nRules = dis.readInt()
+    for{i <- 1 to nRules}{dis.readDouble}
+    for{i <- 1 to nRules}{dis.readInt}
+
+    val nLHS = dis.readInt()
+    
+
+    val nTrees : Int = dis.readInt()
+    
+    //println("got data for " + nTrees + " trees")
+
+    for{i <- 0 to (nTrees - 1)}{
+    
+      val nNodes : Int = dis.readInt() 
+
+      //burn node data
+      for{i <- 1 to nNodes}{
+        dis.readInt()
+        dis.readByte()
+        dis.readInt()
+        dis.readInt()
+        dis.readInt()
+        dis.readInt()
+        dis.readInt()
+      }
+
+      //Node data is stored in DFS order
+      val nts = data(i).nonterminals 
+
+      for{j <- 0 to nNodes - 1} {
+        if(dis.readByte() > 0) {
+          data(i).mark(nts(j))
+        }
+      }
+    }
+
+    dis.close
+
+    val allData = data ::: dataSpecI
+    val dos = packageH(allData,filename,true,data.length)
+
+    dos.close
+  }
+
+
+  def packageOne(dataIn : List[ParseTree with Markers], filename : String) = {
+    val dos = packageH(dataIn,filename,false,0)
+    dos.close
+  }
+
+  def packageH(dataIn : List[ParseTree with Markers], filename : String, split : Boolean, sInd : Int) : DataOutputStream  = {
     
     var throwout = 0
-    var data = dataIn.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
+    
+    val data1 = dataIn.filter(tree => {
+      val l = tree.nonterminals.length
+      if(l > 255) {
+        throwout += 1
+        false
+      } else
+        true
+    })
+
+    println("Threw out " + throwout + " too big trees")
+
+
+
+    var data = data1.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
     data.foreach(d => d.setHeads(pcfg))
 
     val dos = new DataOutputStream(
@@ -63,7 +138,7 @@ class TSGPackager(val pcfg : PCFG) {
     
     pcfgProbs = probs.reverse.toArray
     lhsOfRule = lhsL.reverse.toArray
-
+    val numLHS = pcfg.nextSymID.toInt + 1
     //write number of rules
     //println("NUM RULES = " + pcfgProbs.length)
 
@@ -73,28 +148,33 @@ class TSGPackager(val pcfg : PCFG) {
     
     lhsOfRule.foreach(i => {dos.writeInt(i)})
 
-    val numLHS = pcfg.nextSymID.toInt + 1
+
     //println("NUM LHS = " + numLHS)
 
     dos.writeInt(pcfg.nextSymID + 1)
-
 
     dos.writeInt(data.length)
     //println("NUM TREES = " + data.length)
     data.foreach(t => {
       if(t.nonterminals.length > 255)
         throw new Exception()
-
       writeTree(t,dos)
     })
+
+    if(split)
+      dos.writeInt(sInd)
     
     val betas = for(i <- 1 to numLHS) yield .5
     val alphas = for(i <- 1 to numLHS) yield 100
 
-    betas.foreach(d => dos.writeDouble(d))
     alphas.foreach(d => dos.writeDouble(d))
+    betas.foreach(d => dos.writeDouble(d))
 
-    dos.close
+    alphas.foreach(d => dos.writeDouble(d))
+    betas.foreach(d => dos.writeDouble(d))
+
+    dos
+    
   }
 
   def trimTagged(dIn : List[ParseTree with Markers]) : List[ParseTree with Markers] = {
@@ -213,8 +293,7 @@ class TSGPackager(val pcfg : PCFG) {
     markers.foreach(m => {dos.writeBoolean(m)})
     
 
-  }
-
+  }  
   
 
   def unpack(data : Array[ParseTree with Markers], infile : String) : PTSG = {

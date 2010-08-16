@@ -1,18 +1,25 @@
-ARGS=/home/chonger/data/fft.pack /home/chonger/data/fft.cpack 
+ARGS=/home/chonger/data/train.pack /home/chonger/data/train.cpack 
 ARGS2=/home/chonger/data/fft.cpack /home/chonger/data/fft.cpack 
 TOYARGS=/home/chonger/data/toy.pack /home/chonger/data/toy.cpack 
 TARGS=/home/chonger/data/enb/spack.russell.txt /home/chonger/data/cpack.russell.txt
 ARGA=/home/chonger/data/airplane/airplane.pack /home/chonger/data/airplane/airplane.cpack
 
+2ARGS=/home/chonger/data/air.pack /home/chonger/data/air.out.pack
+
 all:
 	make -C src/.
+
+twoC:
+	make -C src/. dbl
 
 toy:
 	bin/tsgtest $(TOYARGS) log1 /home/chonger/data/schedule.txt
 
 run:
-	bin/tsgtest $(ARGS) runlog /home/chonger/data/schedule.txt 100 100
+	bin/tsgsample $(ARGS) runlog /home/chonger/data/schedule.txt 0 0
 
+dbl:
+	bin/twosample $(2ARGS) 2Xrunlog 10
 
 trun:
 	bin/tsgtest /home/chonger/data/fft.pack /home/chonger/data/fft11.cpack runlog /home/chonger/data/schedule.txt 100 100 &
