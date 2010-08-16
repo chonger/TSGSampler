@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>All classes and objects in enbuske.parse</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../script.js"></script>
+        </head>
+        <body onload="init()"><div class="page-title"><div>BTeam 1.0 API</div></div><p><div>This document is the API specification for BTeam 1.0 API</div></p><table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Class Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/DirectlyEstimatedPCFG.html" target="_self">DirectlyEstimatedPCFG</a></em>
+        <code> extends </code><a href="../enbuske/parse/PCFG.html" target="_self">PCFG</a>
+        
+        <div>Estimate rules from a set of trees</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/EmptyNode.html" target="_self">EmptyNode</a></em>
+        <code> extends </code><a href="../enbuske/parse/TerminalNode.html" target="_self">TerminalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> trait</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/Head.html" target="_self">Head</a></em>
+        <code> extends </code><a href="../enbuske/parse/TreeNode.html" target="_self">TreeNode</a>
+        
+        <div>TreeNodes with this trait have pointers to their head POS/word</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case abstract class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/InternalNode.html" target="_self">InternalNode</a></em>
+        (<code>val override </code><em>symbol</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>)<code> extends </code><a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case abstract class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a></em>
+        (<code>val </code><em>symbol</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>)<code> extends </code><a href="../enbuske/parse/TreeNode.html" target="_self">TreeNode</a><code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/PCFG.html" target="_self">PCFG</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/ParseTree.html" target="_self">ParseTree</a></em>
+        (<code>val </code><em>root</em> : <a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>)<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>The reason we need to wrap this object is that parse trees might have other annotations
+  such as io probs or tree segmentations which are extraneous to their structure</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/PreTerminalNode.html" target="_self">PreTerminalNode</a></em>
+        (<code>val override </code><em>symbol</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <code>val </code><em>kid</em> : <a href="../enbuske/parse/TerminalNode.html" target="_self">TerminalNode</a>)<code> extends </code><a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/ProtoNode.html" target="_self">ProtoNode</a></em>
+        (<code>val override </code><em>symbol</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <code>val </code><em>kids</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>])<code> extends </code><a href="../enbuske/parse/InternalNode.html" target="_self">InternalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/ProtoRule.html" target="_self">ProtoRule</a></em>
+        (<code>val override </code><em>lhs</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <code>val </code><em>children</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>])<code> extends </code><a href="../enbuske/parse/TreeRule.html" target="_self">TreeRule</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/RefWrapper.html" target="_self">RefWrapper</a></em>
+        (<code>val </code><em>n</em> : <a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>)<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/TerminalNode.html" target="_self">TerminalNode</a></em>
+        (<code>val </code><em>terminal</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>)<code> extends </code><a href="../enbuske/parse/TreeNode.html" target="_self">TreeNode</a><code> with </code><a href="" target="contentFrame" class="scala/Product">scala.Product</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/TerminalRule.html" target="_self">TerminalRule</a></em>
+        (<code>val override </code><em>lhs</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <code>val </code><em>terminal</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>)<code> extends </code><a href="../enbuske/parse/TreeRule.html" target="_self">TreeRule</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>abstract class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/TreeNode.html" target="_self">TreeNode</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Using the case class formalization will create hashCode and equals which apply to the whole tree</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>abstract class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/TreeRule.html" target="_self">TreeRule</a></em>
+        (<code>val </code><em>lhs</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>)<code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Rules, not case classed because they do not have recursive structure</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>case class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/UnderspecifiedNode.html" target="_self">UnderspecifiedNode</a></em>
+        (<code>val override </code><em>symbol</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <code>val </code><em>assignment</em> : <a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>)<code> extends </code><a href="../enbuske/parse/InternalNode.html" target="_self">InternalNode</a>
+        
+        
+      </td>
+    </tr>        
+        </table>
+<table summary="" cellpadding="3" class="member">
+        <tr><td class="title" colspan="2">Object Summary</td></tr>
+        <tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/EmptyNode$object.html" target="_self">EmptyNode</a></em>
+        <code> extends </code>() =&gt; <a href="../enbuske/parse/EmptyNode.html" target="_self">EmptyNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/InternalNode$object.html" target="_self">InternalNode</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/NonTerminalNode$object.html" target="_self">NonTerminalNode</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/PCFGPrinter$object.html" target="_self">PCFGPrinter</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/ParseTypes$object.html" target="_self">ParseTypes</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/PreTerminalNode$object.html" target="_self">PreTerminalNode</a></em>
+        <code> extends </code>(<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <a href="../enbuske/parse/TerminalNode.html" target="_self">TerminalNode</a>) =&gt; <a href="../enbuske/parse/PreTerminalNode.html" target="_self">PreTerminalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/ProtoNode$object.html" target="_self">ProtoNode</a></em>
+        <code> extends </code>(<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>]) =&gt; <a href="../enbuske/parse/ProtoNode.html" target="_self">ProtoNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/TerminalNode$object.html" target="_self">TerminalNode</a></em>
+        <code> extends </code>(<a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>) =&gt; <a href="../enbuske/parse/TerminalNode.html" target="_self">TerminalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/TreeNode$object.html" target="_self">TreeNode</a></em>
+        <code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Copy a treenode and all of its children</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> object</code>
+      </td>
+      <td class="signature">
+        <em><a href="../enbuske/parse/UnderspecifiedNode$object.html" target="_self">UnderspecifiedNode</a></em>
+        <code> extends </code>(<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <a href="../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) =&gt; <a href="../enbuske/parse/UnderspecifiedNode.html" target="_self">UnderspecifiedNode</a>
+        
+        
+      </td>
+    </tr>        
+        </table></body>
+      </html>

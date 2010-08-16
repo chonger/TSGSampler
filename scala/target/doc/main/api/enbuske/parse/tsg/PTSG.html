@@ -1,0 +1,431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>class PTSG in enbuske.parse.tsg</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../script.js"></script>
+        </head>
+        <body onload="init()">
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">BTeam 1.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+        
+      <div class="entity">
+        <a href="../../../enbuske/parse/tsg$package.html" target="_self">enbuske.parse.tsg</a>
+        <br></br>
+        <span class="entity">class  PTSG</span>
+      </div><hr></hr>
+      <div class="source">
+        [source: <a href="" class="enbuske/parse/tsg/PTSG"><code>enbuske/parse/tsg/PTSG.scala</code></a>]
+      </div><hr></hr>
+      <a name="PTSG"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>class</code>
+        <em>PTSG</em>(<code>val </code><em>pcfg</em> : <a href="../../../enbuske/parse/PCFG.html" target="_self">PCFG</a>, <code>val </code><em>counts</em> : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>], <code>val </code><em>dist</em> : <a href="../../../enbuske/parse/tsg/TreeDistribution.html" target="_self">TreeDistribution</a>, <code>val </code><em>alphas</em> : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>])
+      </dt>
+      <dd><code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a></dd>
+    </dl>
+      
+
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Value Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> val</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#bs" target="_self">bs</a></em>
+         : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>]
+        
+        <div>cache the scores for each segment as determined by the DP</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> var</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#headMap" target="_self">headMap</a></em>
+         : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> var</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#headTotals" target="_self">headTotals</a></em>
+         : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> var</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#pcfgSet" target="_self">pcfgSet</a></em>
+         : <a href="" target="contentFrame" class="scala/collection/mutable/HashSet">scala.collection.mutable.HashSet</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> var</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#scoreMap" target="_self">scoreMap</a></em>
+         : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>]
+        
+        
+      </td>
+    </tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Method Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#addPCFGRules%28List%5Benbuske.parse.ParseTree%5D%29" target="_self">addPCFGRules</a></em>
+        (<em>data</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#fillCaches%28%29" target="_self">fillCaches</a></em>
+         : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#getDerivations%28enbuske.parse.NonTerminalNode%2Cenbuske.parse.ParseTypes.Symbol%29" target="_self">getDerivations</a></em>
+        (<em>node</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>, <em>sym</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/SegTree.html" target="_self">SegTree</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#getDerivations%28enbuske.parse.ParseTree%29" target="_self">getDerivations</a></em>
+        (<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/SegTree.html" target="_self">SegTree</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#getPerm%28List%5BList%5BA%5D%5D%29" target="_self">getPerm</a></em>
+        [<em>A</em>](<em>lst</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/PTSG.html#getPerm%28List%5BList%5BA%5D%5D%29#A" target="_self">A</a>]]) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/PTSG.html#getPerm%28List%5BList%5BA%5D%5D%29#A" target="_self">A</a>]]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#getTagged%28String%29" target="_self">getTagged</a></em>
+        (<em>sym</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#printNode%28enbuske.parse.NonTerminalNode%29" target="_self">printNode</a></em>
+        (<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#printTree%28enbuske.parse.ParseTree%29" target="_self">printTree</a></em>
+        (<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#score%28enbuske.parse.tsg.SegTree%29" target="_self">score</a></em>
+        (<em>segTree</em> : <a href="../../../enbuske/parse/tsg/SegTree.html" target="_self">SegTree</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#scoreDP%28enbuske.parse.ParseTree%29" target="_self">scoreDP</a></em>
+        (<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#tagNodes%28enbuske.parse.ParseTree%29" target="_self">tagNodes</a></em>
+        (<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="../../../enbuske/parse/RefWrapper.html" target="_self">RefWrapper</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/PTSG.html#walkWith%28enbuske.parse.NonTerminalNode%2Cenbuske.parse.NonTerminalNode%29" target="_self">walkWith</a></em>
+        (<em>target</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>, <em>segNode</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[(<a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>)]
+        
+        <div>concurrently walks two trees, accumulating the leaves in target tree which
+   match the segment in segNode.  If there is not a match, then return is null,
+   but if the segment completely covers the target tree the return value is Nil</div>
+      </td>
+    </tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#getClass%28%29" target="_self">getClass</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#hashCode%28%29" target="_self">hashCode</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#equals%28Any%29" target="_self">equals</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#clone%28%29" target="_self">clone</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#toString%28%29" target="_self">toString</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notify%28%29" target="_self">notify</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notifyAll%28%29" target="_self">notifyAll</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%2CInt%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#finalize%28%29" target="_self">finalize</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%3D%3D%28AnyRef%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%21%3D%28AnyRef%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#eq%28AnyRef%29" target="_self">eq</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#ne%28AnyRef%29" target="_self">ne</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#synchronized%28T0%29" target="_self">synchronized</a>
+        </td></tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" target="_self">Any</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%3D%3D%28Any%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%21%3D%28Any%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#isInstanceOf" target="_self">isInstanceOf</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#asInstanceOf" target="_self">asInstanceOf</a>
+        </td></tr>
+      </table>
+
+
+      
+
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Value Details</td></tr>
+        </table><div><a name="scoreMap"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>var</code>
+        <em>scoreMap</em> : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="pcfgSet"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>var</code>
+        <em>pcfgSet</em> : <a href="" target="contentFrame" class="scala/collection/mutable/HashSet">scala.collection.mutable.HashSet</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="headMap"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>var</code>
+        <em>headMap</em> : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="headTotals"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>var</code>
+        <em>headTotals</em> : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="bs"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>val</code>
+        <em>bs</em> : <a href="" target="contentFrame" class="scala/Array">scala.Array</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>cache the scores for each segment as determined by the DP</dd></dl>
+      <dl></dl>
+    <hr></hr></div>
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Method Details</td></tr>
+        </table><div><a name="addPCFGRules%28List%5Benbuske.parse.ParseTree%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>addPCFGRules</em>(<em>data</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="fillCaches%28%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>fillCaches</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="getDerivations%28enbuske.parse.ParseTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>getDerivations</em>(<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/SegTree.html" target="_self">SegTree</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="getDerivations%28enbuske.parse.NonTerminalNode%2Cenbuske.parse.ParseTypes.Symbol%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>getDerivations</em>(<em>node</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>, <em>sym</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/SegTree.html" target="_self">SegTree</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="getPerm%28List%5BList%5BA%5D%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>getPerm</em>[<em>A</em>](<em>lst</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/PTSG.html#getPerm%28List%5BList%5BA%5D%5D%29#A" target="_self">A</a>]]) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/tsg/PTSG.html#getPerm%28List%5BList%5BA%5D%5D%29#A" target="_self">A</a>]]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="walkWith%28enbuske.parse.NonTerminalNode%2Cenbuske.parse.NonTerminalNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>walkWith</em>(<em>target</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>, <em>segNode</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[(<a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>)]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>concurrently walks two trees, accumulating the leaves in target tree which
+   match the segment in segNode.  If there is not a match, then return is null,
+   but if the segment completely covers the target tree the return value is Nil</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="getTagged%28String%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>getTagged</em>(<em>sym</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>) : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="tagNodes%28enbuske.parse.ParseTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>tagNodes</em>(<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="../../../enbuske/parse/RefWrapper.html" target="_self">RefWrapper</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="printNode%28enbuske.parse.NonTerminalNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>printNode</em>(<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="printTree%28enbuske.parse.ParseTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>printTree</em>(<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="score%28enbuske.parse.tsg.SegTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>score</em>(<em>segTree</em> : <a href="../../../enbuske/parse/tsg/SegTree.html" target="_self">SegTree</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="scoreDP%28enbuske.parse.ParseTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>scoreDP</em>(<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr></div>
+
+
+    <hr></hr>
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">BTeam 1.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+      </body>
+      </html>

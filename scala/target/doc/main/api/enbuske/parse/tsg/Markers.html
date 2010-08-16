@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>trait Markers in enbuske.parse.tsg</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../script.js"></script>
+        </head>
+        <body onload="init()">
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">BTeam 1.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+        
+      <div class="entity">
+        <a href="../../../enbuske/parse/tsg$package.html" target="_self">enbuske.parse.tsg</a>
+        <br></br>
+        <span class="entity">trait  Markers</span>
+      </div><hr></hr>
+      <div class="source">
+        [source: <a href="" class="enbuske/parse/tsg/Markers"><code>enbuske/parse/tsg/Markers.scala</code></a>]
+      </div><hr></hr>
+      <a name="Markers"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>trait</code>
+        <em>Markers</em>
+      </dt>
+      <dd><code> extends </code><a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a></dd>
+    </dl>
+      <dl><dd></dd></dl>
+      <dl></dl>
+    
+      
+
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Value Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> val</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#markers" target="_self">markers</a></em>
+         : <a href="" target="contentFrame" class="scala/collection/mutable/HashSet">scala.collection.mutable.HashSet</a>[<a href="../../../enbuske/parse/RefWrapper.html" target="_self">RefWrapper</a>]
+        
+        
+      </td>
+    </tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Values and Variables inherited from <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="../../../enbuske/parse/ParseTree.html#root" target="_self">root</a>, <a href="../../../enbuske/parse/ParseTree.html#nodes" target="_self">nodes</a>, <a href="../../../enbuske/parse/ParseTree.html#underspecs" target="_self">underspecs</a>, <a href="../../../enbuske/parse/ParseTree.html#nonterminals" target="_self">nonterminals</a>, <a href="../../../enbuske/parse/ParseTree.html#terminals" target="_self">terminals</a>, <a href="../../../enbuske/parse/ParseTree.html#myHash" target="_self">myHash</a>
+        </td></tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Method Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#getSegmentFrom%28enbuske.parse.NonTerminalNode%29" target="_self">getSegmentFrom</a></em>
+        (<em>m</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#getSegments" target="_self">getSegments</a></em>
+         : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]
+        
+        <div>Gets a list of tree segments from this tree, as defined by the current markers</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#isMarked%28enbuske.parse.NonTerminalNode%29" target="_self">isMarked</a></em>
+        (<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" target="_self">Boolean</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#mark%28enbuske.parse.NonTerminalNode%29" target="_self">mark</a></em>
+        (<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#randomizeMarkers%28Double%29" target="_self">randomizeMarkers</a></em>
+        (<em>markProb</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#randomizeMarkers%28%29" target="_self">randomizeMarkers</a></em>
+         : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/tsg/Markers.html#unmark%28enbuske.parse.NonTerminalNode%29" target="_self">unmark</a></em>
+        (<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+        
+        
+      </td>
+    </tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="../../../enbuske/parse/ParseTree.html#deepCopy%28%29" target="_self">deepCopy</a>, <a href="../../../enbuske/parse/ParseTree.html#recGetNodes%28enbuske.parse.TreeNode%29" target="_self">recGetNodes</a>, <a href="../../../enbuske/parse/ParseTree.html#sentence%28enbuske.parse.PCFG%29" target="_self">sentence</a>, <a href="../../../enbuske/parse/ParseTree.html#equals%28Any%29" target="_self">equals</a>, <a href="../../../enbuske/parse/ParseTree.html#hashCode%28%29" target="_self">hashCode</a>
+        </td></tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#getClass%28%29" target="_self">getClass</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#clone%28%29" target="_self">clone</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#toString%28%29" target="_self">toString</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notify%28%29" target="_self">notify</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notifyAll%28%29" target="_self">notifyAll</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%2CInt%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#finalize%28%29" target="_self">finalize</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%3D%3D%28AnyRef%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%21%3D%28AnyRef%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#eq%28AnyRef%29" target="_self">eq</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#ne%28AnyRef%29" target="_self">ne</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#synchronized%28T0%29" target="_self">synchronized</a>
+        </td></tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" target="_self">Any</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%3D%3D%28Any%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%21%3D%28Any%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#isInstanceOf" target="_self">isInstanceOf</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#asInstanceOf" target="_self">asInstanceOf</a>
+        </td></tr>
+      </table>
+
+
+      
+
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Value Details</td></tr>
+        </table><div><a name="markers"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>val</code>
+        <em>markers</em> : <a href="" target="contentFrame" class="scala/collection/mutable/HashSet">scala.collection.mutable.HashSet</a>[<a href="../../../enbuske/parse/RefWrapper.html" target="_self">RefWrapper</a>]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr></div>
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Method Details</td></tr>
+        </table><div><a name="mark%28enbuske.parse.NonTerminalNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>mark</em>(<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="unmark%28enbuske.parse.NonTerminalNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>unmark</em>(<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="isMarked%28enbuske.parse.NonTerminalNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>isMarked</em>(<em>n</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" target="_self">Boolean</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="randomizeMarkers%28%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>randomizeMarkers</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="randomizeMarkers%28Double%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>randomizeMarkers</em>(<em>markProb</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Unit.html" target="_self">Unit</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="getSegments"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>getSegments</em> : <a href="" target="contentFrame" class="scala/List">scala.List</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>]
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Gets a list of tree segments from this tree, as defined by the current markers</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="getSegmentFrom%28enbuske.parse.NonTerminalNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>getSegmentFrom</em>(<em>m</em> : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>) : <a href="../../../enbuske/parse/NonTerminalNode.html" target="_self">NonTerminalNode</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr></div>
+
+
+    <hr></hr>
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">BTeam 1.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+      </body>
+      </html>

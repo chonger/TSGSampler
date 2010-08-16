@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+        <head><title>class Jabberwock in enbuske.parse.generate</title>
+        <meta http-equiv="content-type" content="text/html; charset=UTF8"></meta><meta content="scaladoc (version 2.7.7.final)" name="generator"></meta><link href="../../../style.css" type="text/css" rel="stylesheet"></link><script type="text/javascript" src="../../../script.js"></script>
+        </head>
+        <body onload="init()">
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">BTeam 1.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+        
+      <div class="entity">
+        <a href="../../../enbuske/parse/generate$package.html" target="_self">enbuske.parse.generate</a>
+        <br></br>
+        <span class="entity">class  Jabberwock</span>
+      </div><hr></hr>
+      <div class="source">
+        [source: <a href="" class="enbuske/parse/generate/Jabberwock"><code>enbuske/parse/generate/Jabberwock.scala</code></a>]
+      </div><hr></hr>
+      <a name="Jabberwock"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>class</code>
+        <em>Jabberwock</em>(<code>val </code><em>pcfg</em> : <a href="../../../enbuske/parse/PCFG.html" target="_self">PCFG</a>, <code>val </code><em>segmentMap</em> : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>])
+      </dt>
+      <dd><code> extends </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a></dd>
+    </dl>
+      
+
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Value Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> var</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#headMap" target="_self">headMap</a></em>
+         : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <a href="" target="contentFrame" class="scala/List">scala.List</a>[(<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>)]]
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> val</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#myRand" target="_self">myRand</a></em>
+         : <a href="" target="contentFrame" class="java/util/Random">java.util.Random</a>
+        
+        
+      </td>
+    </tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Method Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#extend%28enbuske.parse.ParseTree%2Cenbuske.parse.UnderspecifiedNode%2Cenbuske.parse.ParseTree%29" target="_self">extend</a></em>
+        (<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <em>site</em> : <a href="../../../enbuske/parse/UnderspecifiedNode.html" target="_self">UnderspecifiedNode</a>, <em>bottom</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#fillCanopy%28enbuske.parse.ParseTree%29" target="_self">fillCanopy</a></em>
+        (<em>fTree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        <div>For now, since canopies are fully generated, there is nothing to fill</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#genCanopy%28Option%5BInt%5D%29" target="_self">genCanopy</a></em>
+        (<em>maxGen</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>]) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#genCanopy%28%29" target="_self">genCanopy</a></em>
+         : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#genTree%28%29" target="_self">genTree</a></em>
+         : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#genTree%28Option%5BInt%5D%29" target="_self">genTree</a></em>
+        (<em>maxGen</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>]) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#generateFrom%28enbuske.parse.ParseTypes.Symbol%29" target="_self">generateFrom</a></em>
+        (<em>head</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#generate_%3F%28enbuske.parse.ParseTree%2Cenbuske.parse.TreeNode%29" target="_self">generate_?</a></em>
+        (<em>fTree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <em>node</em> : <a href="../../../enbuske/parse/TreeNode.html" target="_self">TreeNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" target="_self">Boolean</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#speak%28%29" target="_self">speak</a></em>
+         : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>
+        
+        <div>Maximally unconstrained generation of a string of text</div>
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code> def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#toPCFG" target="_self">toPCFG</a></em>
+         : <a href="../../../enbuske/parse/PCFG.html" target="_self">PCFG</a>
+        
+        
+      </td>
+    </tr>
+<tr>
+      <td class="modifiers" valign="top"> 
+        <code>override def</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.html#toString%28%29" target="_self">toString</a></em>
+         : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>
+        
+        <div>Returns a string representation of the object.</div>
+      </td>
+    </tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#getClass%28%29" target="_self">getClass</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#hashCode%28%29" target="_self">hashCode</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#equals%28Any%29" target="_self">equals</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#clone%28%29" target="_self">clone</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notify%28%29" target="_self">notify</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#notifyAll%28%29" target="_self">notifyAll</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28Long%2CInt%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#wait%28%29" target="_self">wait</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#finalize%28%29" target="_self">finalize</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%3D%3D%28AnyRef%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#%21%3D%28AnyRef%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#eq%28AnyRef%29" target="_self">eq</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#ne%28AnyRef%29" target="_self">ne</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html#synchronized%28T0%29" target="_self">synchronized</a>
+        </td></tr>
+      </table><table summary="" cellpadding="3" class="inherited">
+        <tr><td class="title" colspan="2">
+          Methods inherited from <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html" target="_self">Any</a>
+        </td></tr>
+        <tr><td class="signature" colspan="2">
+          <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%3D%3D%28Any%29" target="_self">==</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#%21%3D%28Any%29" target="_self">!=</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#isInstanceOf" target="_self">isInstanceOf</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Any.html#asInstanceOf" target="_self">asInstanceOf</a>
+        </td></tr>
+      </table>
+<table summary="" cellpadding="3" class="member">
+      <tr><td class="title" colspan="2">Class Summary</td></tr>
+      <tr>
+      <td class="modifiers" valign="top"> 
+        <code> class</code>
+      </td>
+      <td class="signature">
+        <em><a href="../../../enbuske/parse/generate/Jabberwock.TreeExtensionException.html" target="_self">TreeExtensionException</a></em>
+        <code> extends </code><a href="" target="contentFrame" class="java/lang/Exception">java.lang.Exception</a><code> with </code><a href="http://www.scala-lang.org/docu/files/api/scala/AnyRef.html" target="_self">AnyRef</a>
+        
+        <div>Used by Jabberwock only.</div>
+      </td>
+    </tr>
+      </table>
+
+      
+
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Value Details</td></tr>
+        </table><div><a name="myRand"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>val</code>
+        <em>myRand</em> : <a href="" target="contentFrame" class="java/util/Random">java.util.Random</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="headMap"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>var</code>
+        <em>headMap</em> : <a href="" target="contentFrame" class="scala/collection/mutable/HashMap">scala.collection.mutable.HashMap</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>, <a href="" target="contentFrame" class="scala/List">scala.List</a>[(<a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <a href="http://www.scala-lang.org/docu/files/api/scala/Double.html" target="_self">Double</a>)]]
+      </dt>
+      <dd></dd>
+    </dl><hr></hr></div>
+<table summary="" cellpadding="3" class="member-detail">
+          <tr><td class="title">Method Details</td></tr>
+        </table><div><a name="extend%28enbuske.parse.ParseTree%2Cenbuske.parse.UnderspecifiedNode%2Cenbuske.parse.ParseTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>extend</em>(<em>tree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <em>site</em> : <a href="../../../enbuske/parse/UnderspecifiedNode.html" target="_self">UnderspecifiedNode</a>, <em>bottom</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="toPCFG"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>toPCFG</em> : <a href="../../../enbuske/parse/PCFG.html" target="_self">PCFG</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="toString%28%29"></a><dl>
+      <dt>
+        
+        <code>override</code>
+        <code>def</code>
+        <em>toString</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Returns a string representation of the object.  
+    <p>
+    The default representation is platform dependent.</dd></dl>
+      <dl><dt style="margin:10px 0 0 20px;">
+        <b>Returns</b></dt><dd>a string representation of the object.     </p></dd></dl>
+    <hr></hr>
+<a name="generateFrom%28enbuske.parse.ParseTypes.Symbol%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>generateFrom</em>(<em>head</em> : <a href="http://www.scala-lang.org/docu/files/api/scala/Char.html" target="_self">Char</a>) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="speak%28%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>speak</em> : <a href="" target="contentFrame" class="java/lang/String">java.lang.String</a>
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>Maximally unconstrained generation of a string of text</dd></dl>
+      <dl></dl>
+    <hr></hr>
+<a name="generate_%3F%28enbuske.parse.ParseTree%2Cenbuske.parse.TreeNode%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>generate_?</em>(<em>fTree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>, <em>node</em> : <a href="../../../enbuske/parse/TreeNode.html" target="_self">TreeNode</a>) : <a href="http://www.scala-lang.org/docu/files/api/scala/Boolean.html" target="_self">Boolean</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="genTree%28%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>genTree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="genTree%28Option%5BInt%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>genTree</em>(<em>maxGen</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>]) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="genCanopy%28%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>genCanopy</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="genCanopy%28Option%5BInt%5D%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>genCanopy</em>(<em>maxGen</em> : <a href="" target="contentFrame" class="scala/Option">scala.Option</a>[<a href="http://www.scala-lang.org/docu/files/api/scala/Int.html" target="_self">Int</a>]) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl><hr></hr>
+<a name="fillCanopy%28enbuske.parse.ParseTree%29"></a><dl>
+      <dt>
+        
+        <code></code>
+        <code>def</code>
+        <em>fillCanopy</em>(<em>fTree</em> : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>) : <a href="../../../enbuske/parse/ParseTree.html" target="_self">ParseTree</a>
+      </dt>
+      <dd></dd>
+    </dl>
+      <dl><dd>For now, since canopies are fully generated, there is nothing to fill</dd></dl>
+      <dl></dl>
+    <hr></hr></div>
+
+
+    <hr></hr>
+        <table summary="" class="navigation">
+        <tr>
+          <td class="navigation-links" valign="top">
+            <!-- <table><tr></tr></table> -->
+          </td>
+          <td align="right" valign="top" style="white-space:nowrap;" rowspan="2">
+            <div class="doctitle-larger">BTeam 1.0 API</div>
+          </td>
+        </tr>
+        <tr><td></td></tr>
+      </table>
+      </body>
+      </html>
