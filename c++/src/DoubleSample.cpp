@@ -1,5 +1,5 @@
 #include "ParseTree.hpp"
-#include "TreeChunker.hpp"
+#include "DoubleChunker.hpp"
 #include "DP.hpp"
 #include <stdio.h>
 #include <string>

@@ -26,6 +26,9 @@ public:
     
 };
 
+
+
+
 class CGBBase : public BASE {
 public:
 
@@ -46,6 +49,9 @@ public:
     }
     
     std::pair<double,double> score(Segment& seg) {
+
+
+        
         double score = 1.0;
         double scale = 1.0;
         bool first = true;
@@ -123,6 +129,7 @@ public:
     }
 
     std::pair<double,double> score(Segment& seg) {
+        
         double score = 1.0;
         double scale = 1.0;
         bool first = true;
@@ -181,6 +188,8 @@ public:
             printf("UNDERFLOW\n");
             //throw "!";
         }
+
+        //printf("SCALE = %f\n",scale);
         
         if(hasTag)
             return std::make_pair(score,scale);
@@ -478,40 +487,6 @@ public:
         base = new HBase(tData,ifs,lhsCounts,headCut,noTag);
     }
 };
-
-class SpecDP : public DP {
-public:
-    SpecDP(DoubleData* tData_, std::ifstream& ifs) :
-        DP(tData_,ifs), dDat(tData_) {
-        base = new CGBBase(tData,ifs,lhsCounts);
-    }
-
-    void fromTreeData() {
-        printf("SPEC From Tree Data\n");
-        fromTData(dDat->backGend + 1,dDat->ntrees);
-    }
-
-private:
-    DoubleData* dDat;
-};
-
-
-class BackDP : public DP {
-public:
-    BackDP(DoubleData* tData_, std::ifstream& ifs)
-        : DP(tData_,ifs), dDat(tData_) {
-        base = new CGBBase(tData,ifs,lhsCounts);
-    }
-
-    void fromTreeData() {
-        printf("BACK From Tree Data\n");
-        fromTData(0,dDat->ntrees);
-    }
-    
-private:
-    DoubleData* dDat;
-};
-
 
 class CopyDP : public DP {
 public:

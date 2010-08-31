@@ -26,10 +26,11 @@ struct TreeNode {
              NodeOffset parent_,
              NodeOffset sibling_,
              NodeOffset lexHead_,
-             char type_) :
+             char type_,
+             char aspect_) :
         index(index_), isTerminal(isTerminal_),
         head(head_), parent(parent_), sibling(sibling_),
-        lexHead(lexHead_), type(type_), aspect(0) {};
+        lexHead(lexHead_), type(type_), aspect(aspect_) {};
 
     TreeNode& operator=(const TreeNode& o) {
         index = o.index;

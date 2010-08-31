@@ -1,6 +1,6 @@
 #Source Hashes
-#Thu Aug 12 15:26:52 EDT 2010
-src/main/scala/enbuske/parse/tsg/PTSG.scala=109515014cd53fbb6cbe686add9d5e559f586b2b
+#Mon Aug 30 18:15:01 EDT 2010
+src/main/scala/enbuske/parse/tsg/PTSG.scala=e34afa3555c708ba65a28e723c5ebdc5679b0464
 src/main/scala/enbuske/programs/FormFunctionTag.scala=008db04acd8c4f501534a1e2faa866faf85687fc
 src/main/scala/enbuske/util/Util.scala=36ed5446e0eb6c021cbb41705fc873f81cc73156
 src/main/scala/enbuske/test/TestLexHead.scala=7201bd161ab6f32443e9f3b9d0c53e138715ed85
@@ -9,8 +9,9 @@ src/main/scala/enbuske/programs/Trinarize.scala=5eb61783d4430eca6708f53500f5c8e7
 src/main/scala/enbuske/util/NER.scala=984c64a68a09fb829560c5ac72a66420a6434d6c
 src/main/scala/enbuske/parse/ParseTypes.scala=4cd004c320dc9e283e46db83bc49388947ddc3d3
 src/main/scala/enbuske/parse/ParseTreeComponents.scala=e445ff92663389e0fb14c29df7812b243e275dde
+src/main/scala/enbuske/util/DrawTree.scala=cd29d2de9eee2ec19f89eaf7e315a67a1dd30504
 src/main/scala/enbuske/programs/PackTSG.scala=c7393aeb65ddada20e58069e9759b91086c37624
-src/main/scala/enbuske/parse/tsg/TSGPackager.scala=3994dbab8fbbbf53206271a77a917c8cdc7194ba
+src/main/scala/enbuske/parse/tsg/TSGPackager.scala=1a05ae3c31e49546f3270781ba9f40119f6c042b
 src/main/scala/enbuske/programs/Enbuske.scala=215e98e0d6dc20d1ad9b3976d6c5b0874b3c4a6e
 src/main/scala/enbuske/parse/ParseTree.scala=14462482643a87e13a3c87051110cb2538937c04
 src/main/scala/enbuske/parse/tsg/TSGTree.scala=fe40abf5f5d068d833fdc52e70edce62d30e6504

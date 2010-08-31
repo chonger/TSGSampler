@@ -1,20 +1,3 @@
-exit
-run javarunner.ScalEntryPoint
-actions
-compile
-update
-exit
-actions
-graph-src
-exit
-compile
-run 
-run parse.test.ThreadTSG data/train.unk.txt data/train.seg
-run data/train.unk.txt data/train.seg
-run data/train.unk.txt data/train.seg 3 10 10
-run data/train.unk.txt data/train.seg 3 3 10 10
-compiule
-compile
 run data/train.unk.txt data/train.seg 3 3 10 10
 compile
 run data/train.unk.txt data/train.seg 3 3 10 10
@@ -499,3 +482,21 @@ pack
 ner
 reload
 ner
+package
+fft
+reload
+fft
+relad
+reload
+fft
+reload
+fft
+toygen
+reload
+toygen
+reload
+toypack
+toyunpack
+toyunpack 
+toypack2 
+toyunpack

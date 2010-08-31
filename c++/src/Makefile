@@ -1,8 +1,8 @@
 BINDIR=../bin/
 INCL=../lib/sparsehash/include
-SRCFILES=ParseTree.cpp TreeChunker.cpp DP.cpp
-HEADERS=ParseTree.hpp TreeChunker.hpp DP.cpp
-LIBS=-lgsl -lgslcblas -lm -pthread -lpthread -lboost_thread-mt
+SRCFILES=ParseTree.cpp TreeChunker.cpp DP.cpp HDP.cpp DoubleChunker.cpp
+HEADERS=ParseTree.hpp TreeChunker.hpp DP.hpp HDP.hpp DoubleChunker.hpp
+LIBS=-lgsl -lgslcblas -lm -pthread -lpthread -lboost_thread
 
 DEBUGFLAGS=-g -DTSGDEBUG
 REGFLAGS=-O2

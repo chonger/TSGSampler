@@ -35,10 +35,10 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
                                  dataDir + "fft.seg")) dependsOn(compile)
   
   lazy val fft = {
-    val trees = dataDir + "fft.trim.txt"
-    val cpack = dataDir + "fft10.cpack"
-    val toTag = dataDir + "23.unk.txt"
-    val outfile = dataDir + "23FFT.txt"
+    val trees = dataDir + "fft.unk.txt"
+    val cpack = dataDir + "fft-N1-10000.cpack"
+    val toTag = dataDir + "24.unk.txt"
+    val outfile = dataDir + "24FFT.txt"
     val optns = List(trees,cpack,toTag,outfile)
     runTask(Some("enbuske.programs.FormFunctionTag"),runClasspath,optns) dependsOn(compile)
   }
@@ -79,16 +79,23 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   }
 
   lazy val toygen = runTask(Some("enbuske.programs.TSGGen"),runClasspath,
-                            List(dataDir + "toygrammar.txt",dataDir + "toygrammar.gen","1000","50")
+                            List(dataDir + "toygrammar2.txt",dataDir + "toygrammar.spec","1000","50")
                           ) dependsOn(compile)
   
   lazy val toypack = runTask(Some("enbuske.programs.PackTSG"),runClasspath,
-                             List(dataDir + "toygrammar.gen",dataDir + "toy.pack")
-                           ) dependsOn(compile)
+                                List(dataDir + "toygrammar.gen",dataDir + "toyGen.pack")
+                              ) dependsOn(compile)
+  
+  lazy val toypack2 = runTask(Some("enbuske.programs.Pack2TSG"),runClasspath,
+                                List(dataDir + "toygrammar.gen",
+                                     dataDir + "toyGen.cpack",
+                                     dataDir + "toygrammar.spec",
+                                     dataDir + "toyDouble.pack")
+                              ) dependsOn(compile)
   
   lazy val toyunpack = runTask(Some("enbuske.programs.UnpackToText"),runClasspath, 
                                List(dataDir + "toygrammar.gen",
-                                    dataDir + "toy.cpack",
+                                    dataDir + "toyGen.cpack",
                                     dataDir + "toy.seg")) dependsOn(compile)
   
   lazy val getP = runTask(Some("enbuske.programs.elit.GetPhrases"),runClasspath,

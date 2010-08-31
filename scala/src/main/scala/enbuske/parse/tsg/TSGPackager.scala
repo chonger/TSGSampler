@@ -38,7 +38,6 @@ class TSGPackager(val pcfg : PCFG) {
 
     val nLHS = dis.readInt()
     
-
     val nTrees : Int = dis.readInt()
     
     //println("got data for " + nTrees + " trees")
@@ -73,12 +72,39 @@ class TSGPackager(val pcfg : PCFG) {
     val allData = data ::: dataSpecI
     val dos = packageH(allData,filename,true,data.length)
 
+    val betas = for(i <- 1 to nLHS) yield .5
+    val mixW = for(i <- 1 to nLHS) yield List(.5,.5)
+    val alphas = for(i <- 1 to nLHS) yield 100
+
+    //base alphas
+    alphas.foreach(d => dos.writeDouble(d))
+
+    //mix alphas
+    for(i <- 1 to 2) {
+      alphas.foreach(d => dos.writeDouble(d))
+    }
+
+    for(i <- 1 to 2) {
+      mixW.foreach(d => d.foreach(v => dos.writeDouble(v)))
+    }
+
+    betas.foreach(d => dos.writeDouble(d))
+
     dos.close
   }
 
 
   def packageOne(dataIn : List[ParseTree with Markers], filename : String) = {
     val dos = packageH(dataIn,filename,false,0)
+    
+    val numLHS = pcfg.nextSymID.toInt + 1
+
+    val betas = for(i <- 1 to numLHS) yield .5
+    val alphas = for(i <- 1 to numLHS) yield 100
+
+    alphas.foreach(d => dos.writeDouble(d))
+    betas.foreach(d => dos.writeDouble(d))
+    
     dos.close
   }
 
@@ -96,8 +122,6 @@ class TSGPackager(val pcfg : PCFG) {
     })
 
     println("Threw out " + throwout + " too big trees")
-
-
 
     var data = data1.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
     data.foreach(d => d.setHeads(pcfg))
@@ -163,15 +187,6 @@ class TSGPackager(val pcfg : PCFG) {
 
     if(split)
       dos.writeInt(sInd)
-    
-    val betas = for(i <- 1 to numLHS) yield .5
-    val alphas = for(i <- 1 to numLHS) yield 100
-
-    alphas.foreach(d => dos.writeDouble(d))
-    betas.foreach(d => dos.writeDouble(d))
-
-    alphas.foreach(d => dos.writeDouble(d))
-    betas.foreach(d => dos.writeDouble(d))
 
     dos
     
@@ -251,6 +266,7 @@ class TSGPackager(val pcfg : PCFG) {
             dos.writeInt(1)
           else
             dos.writeInt(0)
+          dos.writeInt(0) //aspect
         }
 	    case pn : ProtoNode => {
           val rule = pn.rule
@@ -276,6 +292,8 @@ class TSGPackager(val pcfg : PCFG) {
             dos.writeInt(1)
           else
             dos.writeInt(0)
+
+          dos.writeInt(0) //aspect
 
           var sibs = pn.children.map((n) => true).toArray
           sibs(sibs.length - 1) = false

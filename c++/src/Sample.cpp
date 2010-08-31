@@ -51,6 +51,7 @@ int main(int argc, const char* argv[]) {
 
     TreeData* tData = new TreeData(ifs);
 
+
     
     //TreeData* tData = new TreeData(lhsmap,probs,numRules,ptrees,numTrees,numLHS);    
 
@@ -59,8 +60,10 @@ int main(int argc, const char* argv[]) {
 
     printf("%E %E\n",headCut,noTag);
     
-    chunker = new TagChunker(tData,ifs,2,headCut,noTag); 
+    chunker = new TagChunker(tData,ifs,3,headCut,noTag); 
 
+
+    
     ifs.close();            
     
     outpath = argv[2];
