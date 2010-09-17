@@ -18,6 +18,14 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   //the main class of the exported runnable JAR
   override def mainClass = Some("enbuske.programs.Enbuske")
 
+  lazy val apack = runTask(Some("enbuske.programs.AuthorPack"),runClasspath,
+                                List("/home/chonger/authorship/business")
+                              ) dependsOn(compile)
+  lazy val aupack = runTask(Some("enbuske.programs.AuthorUnPack"),runClasspath,
+                                List("/home/chonger/authorship/business")
+                              ) dependsOn(compile)
+
+
   lazy val pack = runTask(Some("enbuske.programs.PackTSG"),runClasspath,
                                 List(dataDir + "fft.unk.txt",dataDir + "fft.pack")
                               ) dependsOn(compile)

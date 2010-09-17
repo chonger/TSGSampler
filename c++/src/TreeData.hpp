@@ -5,37 +5,8 @@
 #include "Util.hpp"
 
 struct TreeData {
-
-    TreeData() {}
     
     TreeData(std::ifstream& ifs) {
-        
-        readLEbytes(ifs,reinterpret_cast<char*>(&numRules),sizeof(size_t));
-        printf("%d rules\n",numRules) ;
-        
-        //read pcfg probs
-        pcfg = new double[numRules];
-        for(size_t i=0;i<numRules;++i) {
-            readLEbytes(ifs,reinterpret_cast<char*>(pcfg + i),sizeof(double));
-            //printf("PCFG PROB = %f\n",probs[i]);
-        }
-        
-        //read head indexes
-        lhsMap = new size_t[numRules];
-        for(size_t i=0;i<numRules;++i) {
-            readLEbytes(ifs,reinterpret_cast<char*>(lhsMap + i),sizeof(size_t));
-            //printf("LHS Index = %d\n",lhsmap[i]);
-        }
-        
-        readLEbytes(ifs,reinterpret_cast<char*>(&nLHS),sizeof(size_t));
-        printf("%d NTs\n",nLHS);
-        
-        for(size_t i=0;i<numRules;++i) {
-            if(lhsMap[i] >= nLHS) {
-                printf("Bad lhs = %d\n",i);
-                throw -1;
-            }
-        }
         
         readLEbytes(ifs,reinterpret_cast<char*>(&ntrees),sizeof(size_t));
         printf("%d Trees\n",ntrees);
@@ -49,6 +20,7 @@ struct TreeData {
             
             TreeNode nodes[numNodes];
             bool markers[numNodes];
+            NodeOffset warps[numNodes];
             
             for(size_t j=0;j<numNodes;++j) {
                 size_t index;
@@ -59,6 +31,7 @@ struct TreeData {
                 size_t lexhead;
                 size_t type;
                 size_t aspect;
+                size_t foot;
                 readLEbytes(ifs,reinterpret_cast<char*>(&index),sizeof(size_t));
                 readLEbytes(ifs,reinterpret_cast<char*>(&isTerm),sizeof(char));
                 readLEbytes(ifs,reinterpret_cast<char*>(&head),sizeof(size_t));
@@ -67,8 +40,9 @@ struct TreeData {
                 readLEbytes(ifs,reinterpret_cast<char*>(&lexhead),sizeof(size_t));
                 readLEbytes(ifs,reinterpret_cast<char*>(&type),sizeof(size_t));
                 readLEbytes(ifs,reinterpret_cast<char*>(&aspect),sizeof(size_t));
-                
-                nodes[j] = TreeNode(index,isTerm,head,parent,sibling,lexhead,type,aspect);
+                readLEbytes(ifs,reinterpret_cast<char*>(&foot),sizeof(size_t));
+                size_t segTop = head;
+                nodes[j] = TreeNode(index,isTerm,head,parent,sibling,lexhead,type,aspect,foot,segTop);
                 //printf("NODE HEAD - %d\n",nodes[j].lexHead);
             }
             for(size_t j=0;j<numNodes;++j) {
@@ -77,42 +51,21 @@ struct TreeData {
                 markers[j] = (mark != 0);
                 //printf("%d\n",markers[j]);
             }
+
             
-            trees[i] = ParseTree(nodes,markers,numNodes);
+            for(size_t j=0;j<numNodes;++j) {
+                size_t wrp = 0;
+                //readLEbytes(ifs,reinterpret_cast<char*>(&wrp),sizeof(size_t));
+                warps[j] = wrp;
+            }
+            
+            
+            trees[i] = ParseTree(nodes,markers,warps,numNodes);
         }
         
-        lhsTotals = new size_t[nLHS];
-        for(size_t i=0;i<nLHS;++i) {
-            lhsTotals[i] = 0;
-        }
-
-        for(size_t i=0;i<ntrees;++i) {
-            ParseTree& pt = trees[i];
-            
-            for(size_t j=0;j<pt.size;++j) {
-                
-                size_t lhsInd = lhsMap[pt.nodelist[j].index];
-                lhsTotals[lhsInd] += 1;
-                
-            }
-        }
     }
     
-    void writeData(std::ofstream& ofs ) {
-        
-        writeBEbytes(ofs,reinterpret_cast<char*>(&(numRules)),sizeof(size_t));
-        
-        //write pcfg probs
-        for(size_t i=0;i<numRules;++i) {
-            writeBEbytes(ofs,reinterpret_cast<char*>(pcfg + i),sizeof(double));
-        }
-        
-        //write head indexes
-        for(size_t i=0;i<numRules;++i) {
-            writeBEbytes(ofs,reinterpret_cast<char*>(lhsMap + i),sizeof(size_t));
-        }
-                
-        writeBEbytes(ofs,reinterpret_cast<char*>(&(nLHS)),sizeof(size_t));        
+    void write(std::ofstream& ofs ) {
         
         writeBEbytes(ofs,reinterpret_cast<char*>(&(ntrees)),sizeof(size_t));
         
@@ -132,7 +85,7 @@ struct TreeData {
                 size_t lexhead = n.lexHead;
                 size_t type = n.type;
                 size_t aspect = n.aspect;
-                
+                size_t foot = n.foot;
                 writeBEbytes(ofs,reinterpret_cast<char*>(&(index)),sizeof(size_t));
                 writeBEbytes(ofs,reinterpret_cast<char*>(&(isTerm)),sizeof(char));
                 writeBEbytes(ofs,reinterpret_cast<char*>(&(head)),sizeof(size_t));
@@ -141,6 +94,7 @@ struct TreeData {
                 writeBEbytes(ofs,reinterpret_cast<char*>(&(lexhead)),sizeof(size_t));
                 writeBEbytes(ofs,reinterpret_cast<char*>(&(type)),sizeof(size_t));
                 writeBEbytes(ofs,reinterpret_cast<char*>(&(aspect)),sizeof(size_t));
+                writeBEbytes(ofs,reinterpret_cast<char*>(&(foot)),sizeof(size_t));
             }
             
             for(size_t j=0;j<numNodes;++j) {
@@ -153,52 +107,14 @@ struct TreeData {
     }
     
     ~TreeData() {
-        if(pcfg != NULL) 
-            delete[] pcfg;
-        pcfg = NULL;
-
         if(trees != NULL)
             delete[] trees;
         trees = NULL;
-
-        if(lhsMap != NULL)
-            delete[] lhsMap;
-        lhsMap = NULL;
-
-        if(lhsTotals != NULL)
-            delete[] lhsTotals;
-        lhsTotals = NULL;
     }
-    
-    size_t* lhsMap;
-    
-    //for base prob dist
-    double* pcfg;
-    size_t numRules;
     
     ParseTree* trees;
     size_t ntrees;
-    size_t nLHS;
-    size_t* lhsTotals;    
-
-};
-
-
-class DoubleData : public TreeData {
-public:
-    DoubleData(std::ifstream& ifs) : TreeData(ifs) {
-        readLEbytes(ifs,reinterpret_cast<char*>(&backGend),sizeof(size_t));
-        printf("%d are background, %d are specific\n",backGend,ntrees - backGend);
-    }
-
-    void write2Data(std::ofstream& ofs ) {
-        writeData(ofs);
-        writeBEbytes(ofs,reinterpret_cast<char*>(&(backGend)),sizeof(size_t));
-    }
-
-    size_t backGend;
     
 };
-
 
 #endif

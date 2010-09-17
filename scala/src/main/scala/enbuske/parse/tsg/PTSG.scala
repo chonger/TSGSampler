@@ -11,6 +11,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
   var scoreMap = new HashMap[ParseTree,Double]()
   var pcfgSet = new HashSet[ParseTree]()
   var headMap : Array[List[ParseTree]] = null
+  var headZ : Array[Double] = null
   var headTotals : Array[Double] = null
   
   def addPCFGRules(data : List[ParseTree]) = {
@@ -34,8 +35,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     var added = 0
     pcfgSet.foreach(pt => {
       if(!counts.isDefinedAt(pt)) {
-        println(PCFGPrinter.treeToString(pcfg,pt))
         added += 1
+        //println(PCFGPrinter.treeToString(pcfg,pt))
         counts += (pt -> 0)
       }
     })
@@ -44,13 +45,47 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     fillCaches()
   }
 
+  def addAllTags() = {
+    val startTrees = counts.keySet
+    println("START TREES " + startTrees.size)
+
+    var ind = 0
+
+    pcfgSet.foreach(t => {
+      val tags = getTagged(pcfg.symbolStrings(t.root.symbol))
+      
+      def recC(n : NonTerminalNode) : NonTerminalNode = {
+        n match {
+          case pn : PreTerminalNode => PreTerminalNode(pn.symbol,pn.kid)
+          case un : UnderspecifiedNode => UnderspecifiedNode(un.symbol,null)
+          case ptn : ProtoNode => ProtoNode(ptn.symbol,ptn.children.map(a => recC(a)))
+        }
+      }
+
+      val tagTrees = tags.map(tag => {
+        //replace the root symbol
+        t.root match {
+          case pn : PreTerminalNode => new ParseTree(PreTerminalNode(pn.symbol,pn.kid)) //preterminals are not tagged
+          case ptn : ProtoNode => new ParseTree(ProtoNode(tag,ptn.children.map(a => recC(a))))
+        }
+      })
+
+      tagTrees.foreach(tree => {
+        if(!startTrees.contains(tree)) {
+          ind += 1
+          counts += (tree -> 0)
+        }
+      })
+    })
+
+      
+    println("ADDED " + ind + " TAG TREES")
+    fillCaches()
+  }
+
   //add in all of the pcfg rules with zero count
   addPCFGRules(counts.map(_ match {
-    case (tree,count) => tree}).toList)    
-
-
-
-
+    case (tree,count) => tree}).toList)
 
   def fillCaches() = {
     /**
@@ -71,15 +106,104 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       (0.0 /: lst)((a,b) => a + counts(b))
     })
 
+    headZ = headMap.map(lst => {
+      (0.0 /: lst)((a,b) => a + scoreDP(b))
+    })
+
     /**
      *  cache the scores for each segment as determined by the DP
      */
     scoreMap.clear()
     counts.foreach(_ match {
       case (tree,count) => {
-        scoreMap += tree -> scoreDP(tree)
+        val Z = headZ(tree.root.symbol)
+        scoreMap += tree -> (scoreDP(tree) / Z)
       }
     })
+  }
+
+  def scoreTree(tree : ParseTree) : Double = {
+    
+    var nodeToSeg = new HashMap[RefWrapper,List[ParseTree]]()
+
+
+
+    tree.nonterminals.foreach(n => {
+      val rw = new RefWrapper(n)
+      var myCan = 0
+
+      //get all trees which might start with this tag
+      val cand = headMap(n.symbol).filter(seg => {
+          walkWith(n,seg.root) != null
+      })
+      
+      myCan += cand.length
+      nodeToSeg += rw -> cand
+
+      if(myCan == 0) {
+        println("NO SEGS FROM " + PCFGPrinter.nodeString(pcfg,n))
+        println("There should be some segment from here")
+        throw new Exception();
+      }
+    })
+
+      
+    
+ 
+    var insideMap = new HashMap[RefWrapper,Double]()
+
+    def doinside(n : NonTerminalNode) : Unit = {
+      val rw = new RefWrapper(n)
+
+      n match {
+        case pn : PreTerminalNode => {
+          //do nothing
+        }
+        case in : InternalNode => {
+          in.children.foreach(a => doinside(a))
+        }
+      }
+
+    
+      val segs = nodeToSeg(rw)
+      var iProb : Double = 0.0
+      segs.foreach(e => {        
+        val leaves = walkWith(n,e.root) 
+          
+        if(leaves == null)
+          throw new Exception()
+          
+        if(scoreMap(e) == 0)
+          throw new Exception()
+
+        val sProb = (scoreMap(e) /: leaves)(
+          (a,l) => a * insideMap(new RefWrapper(l._1)) //the recursive call
+        )
+        
+        iProb = iProb + sProb
+      })
+
+      
+        
+      val cur = insideMap.getOrElse(rw,0.0)
+
+      insideMap += rw -> (cur + iProb)
+    }
+
+
+    doinside(tree.root) //assumes that root is never split
+
+    val ret = insideMap(new RefWrapper(tree.root))
+/**
+    if(ret == 0) {
+      insideMap.foreach(e => {
+        println(PCFGPrinter.nodeString(pcfg,e._1.n))
+        println(e._2)
+      })
+      throw new Exception
+    }
+*/
+    ret
   }
 
 
@@ -233,33 +357,6 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     }	
   }
 
-  //get all symbols which start with this string
-  def getTagged(sym : String) : List[ParseTypes.Symbol] = {
-    pcfg.symbolStrings.filter(_.indexOf(sym) == 0).map(s => pcfg.symbolIDs(s))
-  }
-
-  //should be an UNTAGGED form
-  def getTags(sym : String) : List[ParseTypes.Symbol] = {
-    import scala.collection.mutable.HashSet
-    val strs = pcfg.symbolStrings.filter(_.indexOf(sym) == 0)
-    val hs = new HashSet[String]()
-    strs.foreach(s => hs ++= tagExtract(s))
-    hs.elements.map(s => pcfg.symbolIDs(s)).toList
-  }
-
-  def removeTag(sym : String) : ParseTypes.Symbol = {
-    val dInd = sym.indexOf('-')
-    if(dInd <= 0)
-      return pcfg.symbolIDs(sym)
-    pcfg.symbolIDs(sym.substring(0,dInd))
-  }
-
-  def tagExtract(sym : String) : List[String] = {
-    val dInd = sym.indexOf('-')
-    if(dInd <= 0) //-LRB- et al or none
-      return Nil
-    sym.substring(dInd + 1).split("-").toList
-  }
 
   val syntactic = List("DTV","LGS","PRD","PUT","SBJ","VOC")
   val semantic =  List("ADV","BNF","DIR","EXT","LOC","MNR","NOM","PRP","TMP")
@@ -268,10 +365,44 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
   val related = List("CLR")
 
   val groups = List(syntactic,semantic,topic,misc,related)
-  //when tagging the nodes, allow only one tag from each group.
-  //allow a tag from another group if it has probability > tagCutoff
-  val tagCutoff : Double = .3
-  
+
+  def extractTags(sym : String) : List[String] = {
+    val dInd = sym.indexOf('-')
+    if(dInd <= 0) //not present or a -LRB- et al
+      return Nil
+    val ret = sym.substring(dInd + 1).split("-")
+    //println(ret.toList)
+    ret.toList
+  }
+
+
+  def getTagged(sym : String) : List[ParseTypes.Symbol] = {
+
+    val dInd = sym.indexOf('-')
+    if(dInd == 0) //-LRB- or -RRB-
+      return List(pcfg.symbolIDs(sym))
+    var base = sym
+    if(dInd > 0)
+      base = sym.substring(0,dInd)
+
+    var ret = pcfg.symbolStrings.filter(x => {
+      val sInd = x.indexOf(base)
+      x == base ||
+      (sInd == 0 && x.charAt(base.length) == '-')
+    }).map(s => pcfg.symbolIDs(s))
+
+    /**
+    println("IN - " + sym)
+    println("OUT - " + ret.map(x => pcfg.symbolStrings(x)))
+    */
+
+    
+    //WHY IS THIS HERE!!! - while tagging nodes we might introduce new tag combos which do not have
+    //entries in the headMap
+    ret = pcfg.symbolStrings.filter(_.indexOf(sym) == 0).map(a => pcfg.symbolIDs(a))
+    ret.filter(_ < headMap.length)
+  }
+
 
   def tagNodes(tree : ParseTree) : HashMap[RefWrapper,ParseTypes.Symbol] = {
 
@@ -282,36 +413,55 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     var nodeToSeg = new HashMap[Tuple2[RefWrapper,ParseTypes.Symbol],List[ParseTree]]()
 
     var tCan = 0
+
     tree.nonterminals.foreach(n => {
       val rw = new RefWrapper(n)
       
       //get the tagged symbols which could come from here
       val tags = getTagged(pcfg.symbolStrings(n.symbol))
       
-      //var myCan = 0
+      var myCan = 0
 
       tags.map(t => {
+        
+        
+          
 
         //get all trees which might start with this tag
         val cand = headMap(t).filter(seg => {
           walkWith(n,seg.root) != null
         })
-      
-        //myCan += cand.length
-        
+        tCan += cand.length
+        myCan += cand.length
         nodeToSeg += (rw,t) -> cand
+        
+        /**
+        if(cand.length == 0)
+          println("NO CANDS FOR " + PCFGPrinter.nodeString(pcfg,n) + " with tag " + pcfg.symbolStrings(t))
+        else {
+          println("SEGS FROM " + PCFGPrinter.nodeString(pcfg,n) + " IN ")
+          println(PCFGPrinter.treeToString(pcfg,tree))
+          cand.foreach(c => {
+            println(PCFGPrinter.treeToString(pcfg,c))
+            
+          })
+        }
 
+        println("DONE")
+        */
       })
 
-      /**
+      
       if(myCan == 0) {
           println("NO SEGS FROM " + PCFGPrinter.nodeString(pcfg,n))
         println("There should be some segment from here")
         throw new Exception();
       }
-      */
 
     })
+
+    //println("TOTAL CANDIDATES = " + tCan)
+
     
     /**
      * base cases -
@@ -341,23 +491,9 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     
     var insideMap = new HashMap[Tuple2[RefWrapper,ParseTypes.Symbol],Double]()
 
-    def isClone_?(e : ParseTree, o : ParseTree) : Boolean = {
-      if(e.root.children.length != o.root.children.length)
-        return false
-
-      e.root.children zip o.root.children foreach (_ match {
-        case (en,on) => {
-          if(en != on)
-            return false
-        }
-      })
-
-      true
-    }
-
     def doinside(n : NonTerminalNode) : Unit = {
-      
-
+      val tags = getTagged(pcfg.symbolStrings(n.symbol))
+      val rw = new RefWrapper(n)
 
       n match {
         case pn : PreTerminalNode => {
@@ -367,86 +503,10 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
           in.children.foreach(a => doinside(a))
         }
       }
-      val rw = new RefWrapper(n)
-      val tags = getTagged(pcfg.symbolStrings(n.symbol))
-
-      /**
-      //KNESER NEY
-
-      import scala.collection.mutable.HashSet
-      var nSet = new HashSet[ParseTree]()
-
-      val rw = new RefWrapper(n)
-      val tags = getTagged(pcfg.symbolStrings(n.symbol))
-      tags.foreach(tag => nSet ++= nodeToSeg(rw,tag))
-
-      while(!nSet.isEmpty) {
-        val e = (nSet.elements.toList)(0)
-        nSet -= e
-        val clones = nSet.elements.filter(x => isClone_?(e,x))
-        nSet -= clones
-        val segs = e :: clones
-        
-        
-        // now we smooth this set of segments' probabilities
-        // (in general this list will be short) could add a spc case when clones are Nil
-        
-
-        val counts = segs.map(s => counts(s))
-        
-        val n1 = counts.filter(_ == 1).length.toDouble
-        val n2 = counts.filter(_ == 2).length.toDouble
-        val n3 = counts.filter(_ == 3).length.toDouble
-        val n4 = counts.filter(_ == 4).length.toDouble
-        lazy val y : Double = if(n1 + n2 == 0) {
-          0 .0
-        } else 
-          n1 /(n1 + 2 * n2)
-
-        lazy val d1 = if(n1 == 0) {
-          1.0
-        } else 
-          1.0 - 2 * y * n2 / n1
-        lazy val d2 = if(n2 == 0) {
-          2.0
-        } else 
-          2.0 - 3 * y * n3 / n2
-        lazy val d3 = if(n3 == 0) {
-          3.0
-        } else 
-          3.0 - 4 * y * n4 / n3
-        
-        var totalD = 0.0
-        
-        val discounteds = counts.map(c => {
-          c match {
-            case 0 => 0
-            case 1 => {
-              totalD += d1
-              1 - d1
-            }
-            case 2 => {
-              totalD += d2
-              2 - d2
-            }
-            case _ => {
-              totalD += d3
-              c - d3
-            }
-          }
-        }) 
-
-        
-
-      }
-      */
-
 
       tags.foreach(sym => {
         val segs = nodeToSeg(rw,sym)
-
         var iProb : Double = 0.0
-        //each segment e contributes some pMass to to n being taggen with sym
         segs.foreach(e => {        
           val leaves = walkWith(n,e.root) 
           
@@ -456,8 +516,6 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
           if(scoreMap(e) == 0)
             throw new Exception()
 
-
-        
           val sProb = (scoreMap(e) /: leaves)(
             (a,l) => a * insideMap((new RefWrapper(l._1),l._2)) //the recursive call
           )
@@ -465,18 +523,20 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
           iProb = iProb + sProb
         })
 
-        //now iProb holds the inside probability of n and sym
-        //this probability gets smoothed accross all categories
+        //val cur = insideMap.getOrElse((rw,sym),0.0)
+        //insideMap += (rw,sym) -> (cur + iProb)
 
+        
         val nTags = tags.length.toDouble
         tags.foreach(t => {
           val cur = insideMap.getOrElse((rw,t),0.0)
           if(t == sym) {
-            insideMap += (rw,t) -> (cur + iProb * (1-smoothFac))
+            insideMap += (rw,t) -> (cur + iProb * (1-smoothFac) + (iProb * smoothFac / nTags))
           } else {
             insideMap += (rw,t) -> (cur + (iProb * smoothFac / nTags))
           }
         })
+        
       })
     }
 
@@ -525,17 +585,21 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
                   a * insideMap(new RefWrapper(al._1),al._2)
                 }
               })
+              //val key = (new RefWrapper(l._1),l._2)
+              //val cur = outsideMap.getOrElse(key,0.0)
+              //outsideMap += key -> (cur + myProb)
               
               val ltags = getTagged(pcfg.symbolStrings(l._1.symbol))
               ltags.foreach(t => {
                 val key = (new RefWrapper(l._1),t)
                 val cur = outsideMap.getOrElse(key,0.0)
                 if(t == l._2) {
-                  outsideMap += key -> (cur + myProb * (1-smoothFac))
+                  outsideMap += key -> (cur + myProb * (1-smoothFac) + (myProb * smoothFac / ltags.length.toDouble))
                 } else {
                   outsideMap += key -> (cur + (myProb * smoothFac / ltags.length.toDouble))
                 }
               })
+              
             })
           })          
         } else {
@@ -589,8 +653,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
      */
 
     //holds the scores for each node as a list of tags and probability mass
-    val scores = new HashMap[RefWrapper,List[Tuple2[ParseTypes.Symbol,Double]]]()
-
+    //val scores = new HashMap[RefWrapper,List[Tuple2[ParseTypes.Symbol,Double]]]()
+    val scores = new HashMap[RefWrapper,List[Tuple2[String,Double]]]()
     
     def scoreTag(target : NonTerminalNode, segNode : NonTerminalNode, score : Double) : Unit = {
       
@@ -598,6 +662,32 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       var cur = scores.getOrElse(rw,Nil)
 
       //add score to target's taglist entry for segNode's tag
+
+      val segStr = pcfg.symbolStrings(segNode.symbol)
+      var segTags = extractTags(segStr)
+      if(segTags.length == 0)
+        segTags = List("NULL")
+
+      segTags.foreach(tag => {
+        var found = false
+        cur = cur.map(_ match {
+          case (sym,scr) => {
+            if(sym == tag) {
+              found = true
+              (sym,scr + score)
+            } else
+              (sym,scr)
+          }
+        })
+        if(!found) {
+          cur ::= (tag,score)
+        }
+      })
+      
+      scores += rw -> cur
+
+
+      /**
       var found = false
       cur = cur.map(_ match {
         case (sym,scr) => {
@@ -613,7 +703,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       }
       
       scores += rw -> cur
-
+      */
       
       //recurse to the rest of the segment
       segNode match {
@@ -706,7 +796,10 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
             inscr
           })
           
-          scoreTag(n,e.root,((scoreMap(e) * outscore) /: inscores)(_ * _))
+
+          val score = ((scoreMap(e) * outscore) /: inscores)(_ * _)
+
+          scoreTag(n,e.root,score)
         })
       })
     
@@ -731,8 +824,10 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
     //return best scoring tags for each node
     val ret = new HashMap[RefWrapper,ParseTypes.Symbol]()    
     tree.nonterminals.foreach(n => {
-      val tags = scores(new RefWrapper(n))
+      val tags : List[Tuple2[String,Double]] = scores(new RefWrapper(n)) 
       
+      val baseStr = pcfg.symbolStrings(n.symbol)
+
       if(tags.length == 0)
         throw new Exception()
 
@@ -740,7 +835,7 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
       //println(tags)
 
       var maxV = -1.0
-      var best : ParseTypes.Symbol = 0
+      var best : String = "ERR"
 
       tags.foreach(_ match {
         case (t,d) => {
@@ -754,7 +849,45 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
         }
       })
       
-      ret += new RefWrapper(n) -> best
+
+
+      var tag2 : String = "NONE"
+      if(best != "NULL") {
+
+        var group = groups.filter(g => g.contains(best))(0)
+
+        var maxV2 = -1.0
+        var best2 : String = "ERR"
+
+        tags.foreach(_ match {
+          case (t,d) => {
+            
+            if(t != "NULL" && !group.contains(t) && t != best && d > maxV2) {
+              best2 = t
+              maxV2 = d
+            }
+
+          //println(d + " - " + pcfg.symbolStrings(t) + " == " + pcfg.symbolStrings(best))
+          }
+        })
+        if(maxV2 > (3 * maxV / 4)) 
+          tag2 = best2
+      }
+        
+
+      //make the symbol
+      val tagStr = if(best == "NULL") {
+        baseStr 
+      } else {
+        if(tag2 == "NONE")
+          baseStr + "-" + best
+        else {
+          println("2TAG!")
+          baseStr + "-" + best + "-" + tag2
+        }
+      }
+
+      ret += new RefWrapper(n) -> pcfg.addSymbol(tagStr)
 
     })
 
@@ -776,6 +909,8 @@ class PTSG(val pcfg : PCFG, var counts : HashMap[ParseTree,Int],
 
   def scoreDP(tree : ParseTree) : Double = {
     val sym = tree.root.symbol
+//    println(PCFGPrinter.treeToString(pcfg,tree))
+
     (alphas(sym) * dist.score(tree) + counts.getOrElse(tree,0)) /
     (alphas(sym) + headTotals(sym))
   }

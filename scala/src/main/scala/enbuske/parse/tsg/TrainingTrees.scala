@@ -6,6 +6,11 @@ package enbuske.parse.tsg
   * 
  **/ 
 
+trait Aspect extends ParseTree {
+  import scala.collection.mutable.{HashMap,HashSet}
+  var aspect = new HashMap[RefWrapper,Int]()
+}
+
 trait Markers extends ParseTree {
   import scala.collection.mutable.{HashMap,HashSet}
   val markers = new HashSet[RefWrapper] //the markers define cut points in the tree

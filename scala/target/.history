@@ -1,13 +1,3 @@
-run data/train.unk.txt data/train.seg 3 3 10 10
-compile
-run data/train.unk.txt data/train.seg 3 3 10 10
-run data/tsgtoygrammar.gen data/train.seg 3 3 10 10
-compile
-run data/tsgtoygrammar.gen data/train.seg 3 3 10 10
-compile
-run data/tsgtoygrammar.gen data/train.seg 3 3 10 10
-run data/tsgtoygrammar.gen data/train.seg 1 3 10 10
-run data/tsgtoygrammar.gen data/train.seg 1 3 100 100
 run data/tsgtoygrammar.gen data/train.seg 2 3 100 100
 run data/tsgtoygrammar.gen data/train.seg 4 3 100 100
 run data/tsgtoygrammar.gen data/train.seg 3 3 100 100
@@ -500,3 +490,12 @@ toyunpack
 toyunpack 
 toypack2 
 toyunpack
+compile
+toyunpack
+compile
+apack
+compile
+apack
+compile
+reload
+aupack 

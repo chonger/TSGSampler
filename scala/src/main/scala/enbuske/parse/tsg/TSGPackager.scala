@@ -6,6 +6,8 @@ import util.LexicalHeads
 
 class TSGPackager(val pcfg : PCFG) {
 
+  val nLHS = pcfg.nextSymID.toInt + 1
+
   import scala.collection.mutable.HashMap
 
   val rulemap = new HashMap[TreeRule,Int]() //record the enumeration of all rules
@@ -21,86 +23,77 @@ class TSGPackager(val pcfg : PCFG) {
     false
   }
 
-  def packageTwo(data : List[ParseTree with Markers], 
-                 infile : String,
-                 dataSpecI : List[ParseTree with Markers],
+  /**
+   * Must specify
+   * each tree set
+   * number of derived DP's
+   * for each tree set specify connections
+   *
+   *
+   */ 
+  def packageHDP(data : List[List[ParseTree with Markers]], 
+                 numDP : Int,
+                 dpConnect : List[List[Double]],
                  filename : String) = {
-
-    //read packed trees from a previous sample
-
-    val dis = new DataInputStream(
-      new BufferedInputStream(new FileInputStream(new File(infile))))
-
-    //burn through a bunch of data
-    val nRules = dis.readInt()
-    for{i <- 1 to nRules}{dis.readDouble}
-    for{i <- 1 to nRules}{dis.readInt}
-
-    val nLHS = dis.readInt()
     
-    val nTrees : Int = dis.readInt()
+    val dos = new DataOutputStream(
+      new BufferedOutputStream(new FileOutputStream(new File(filename))))
+
+    println("PACKAGING HDP")
+
+    packagePCFG(dos)
     
-    //println("got data for " + nTrees + " trees")
+    dos.writeInt(data.length) //number of tree sets
 
-    for{i <- 0 to (nTrees - 1)}{
+    var ind = 0
+    data.foreach(tset => {
+      packageTrees(dos,tset,ind)
+      ind += 1
+    })
+
     
-      val nNodes : Int = dis.readInt() 
-
-      //burn node data
-      for{i <- 1 to nNodes}{
-        dis.readInt()
-        dis.readByte()
-        dis.readInt()
-        dis.readInt()
-        dis.readInt()
-        dis.readInt()
-        dis.readInt()
-      }
-
-      //Node data is stored in DFS order
-      val nts = data(i).nonterminals 
-
-      for{j <- 0 to nNodes - 1} {
-        if(dis.readByte() > 0) {
-          data(i).mark(nts(j))
-        }
-      }
-    }
-
-    dis.close
-
-    val allData = data ::: dataSpecI
-    val dos = packageH(allData,filename,true,data.length)
+    //HDP Loads from here
 
     val betas = for(i <- 1 to nLHS) yield .5
-    val mixW = for(i <- 1 to nLHS) yield List(.5,.5)
     val alphas = for(i <- 1 to nLHS) yield 100
 
-    //base alphas
+    //base DP info
+    betas.foreach(d => dos.writeDouble(d))
     alphas.foreach(d => dos.writeDouble(d))
 
-    //mix alphas
-    for(i <- 1 to 2) {
+    println(numDP + " Dirichlet Processes")
+    //write number of DPs
+    dos.writeInt(numDP)
+
+    //alphas for each DP
+    for{i <- 1 to numDP} {
       alphas.foreach(d => dos.writeDouble(d))
     }
 
-    for(i <- 1 to 2) {
-      mixW.foreach(d => d.foreach(v => dos.writeDouble(v)))
-    }
-
-    betas.foreach(d => dos.writeDouble(d))
+    println("Connection matrix")
+    //for each treeset write the mixture of each dp for each 
+    dpConnect.foreach(cList => {
+      cList.foreach(c => {
+        print(c + "\t")
+        for(i <- 1 to nLHS) {dos.writeDouble(c)}
+      })      
+      println()
+    })
 
     dos.close
   }
 
 
   def packageOne(dataIn : List[ParseTree with Markers], filename : String) = {
-    val dos = packageH(dataIn,filename,false,0)
-    
-    val numLHS = pcfg.nextSymID.toInt + 1
 
-    val betas = for(i <- 1 to numLHS) yield .5
-    val alphas = for(i <- 1 to numLHS) yield 100
+    val dos = new DataOutputStream(
+      new BufferedOutputStream(new FileOutputStream(new File(filename))))
+
+    packagePCFG(dos)
+    packageTrees(dos,dataIn)
+
+    val betas = for(i <- 1 to nLHS) yield .5
+    val alphas = for(i <- 1 to nLHS) yield 100
 
     alphas.foreach(d => dos.writeDouble(d))
     betas.foreach(d => dos.writeDouble(d))
@@ -108,40 +101,7 @@ class TSGPackager(val pcfg : PCFG) {
     dos.close
   }
 
-  def packageH(dataIn : List[ParseTree with Markers], filename : String, split : Boolean, sInd : Int) : DataOutputStream  = {
-    
-    var throwout = 0
-    
-    val data1 = dataIn.filter(tree => {
-      val l = tree.nonterminals.length
-      if(l > 255) {
-        throwout += 1
-        false
-      } else
-        true
-    })
-
-    println("Threw out " + throwout + " too big trees")
-
-    var data = data1.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
-    data.foreach(d => d.setHeads(pcfg))
-
-    val dos = new DataOutputStream(
-      new BufferedOutputStream(new FileOutputStream(new File(filename))))
-
-    /**
-     * to package -
-     *
-     *    length = numRules
-     *    rhsMap - for each enumerated rule, the index of its rhs
-     *    pcfg - the pcfg prob for each enumerated rule
-     *
-     *    beta - betas (length = num rhs)
-     *    alpha - (length = num rhs)
-     *    trees - put into struct format
-     *
-     */
-
+  def packagePCFG(dos : DataOutputStream) = {
     var index = 0
     var probs : List[Double] = Nil
     var lhsL : List[Int] = Nil
@@ -162,9 +122,9 @@ class TSGPackager(val pcfg : PCFG) {
     
     pcfgProbs = probs.reverse.toArray
     lhsOfRule = lhsL.reverse.toArray
-    val numLHS = pcfg.nextSymID.toInt + 1
+
     //write number of rules
-    //println("NUM RULES = " + pcfgProbs.length)
+    println("NUM RULES = " + pcfgProbs.length)
 
     dos.writeInt(pcfgProbs.length)
     
@@ -172,39 +132,44 @@ class TSGPackager(val pcfg : PCFG) {
     
     lhsOfRule.foreach(i => {dos.writeInt(i)})
 
-
-    //println("NUM LHS = " + numLHS)
-
     dos.writeInt(pcfg.nextSymID + 1)
+  }
+
+  def packageTrees(dos : DataOutputStream, 
+                   dataIn : List[ParseTree with Markers]) : Unit = {
+    packageTrees(dos,dataIn,0)
+  }
+
+  def packageTrees(dos : DataOutputStream, 
+                   dataIn : List[ParseTree with Markers],
+                   aspect : Int) : Unit = {
+    
+    var throwout = 0
+    
+    val data1 = dataIn.filter(tree => {
+      val l = tree.nonterminals.length
+      if(l > 255) {
+        throwout += 1
+        false
+      } else
+        true
+    })
+
+    println("Threw out " + throwout + " too big trees")
+
+    var data = data1.map(t => new ParseTree(t.root) with Markers with LexicalHeads)
+    data.foreach(d => d.setHeads(pcfg))
 
     dos.writeInt(data.length)
-    //println("NUM TREES = " + data.length)
+    println("NUM TREES = " + data.length)
     data.foreach(t => {
       if(t.nonterminals.length > 255)
         throw new Exception()
-      writeTree(t,dos)
-    })
-
-    if(split)
-      dos.writeInt(sInd)
-
-    dos
-    
-  }
-
-  def trimTagged(dIn : List[ParseTree with Markers]) : List[ParseTree with Markers] = {
-    dIn.filter(t => {
-      var tag = false
-      t.nonterminals.foreach(n => {
-        if(isTagged_?(n))
-          tag = true
-      })    
-      tag
+      writeTree(t,dos,aspect)
     })
   }
 
-  def writeTree(tree : ParseTree with Markers with LexicalHeads, dos : DataOutputStream) : Unit = {
-
+  def writeTree(tree : ParseTree with Markers with LexicalHeads, dos : DataOutputStream, aspect : Int) : Unit = {
     
     val nts = tree.nonterminals
     val numNodes : Short = tree.nonterminals.length.toShort
@@ -266,7 +231,8 @@ class TSGPackager(val pcfg : PCFG) {
             dos.writeInt(1)
           else
             dos.writeInt(0)
-          dos.writeInt(0) //aspect
+          dos.writeInt(aspect) //aspect
+          dos.writeInt(0) //foot
         }
 	    case pn : ProtoNode => {
           val rule = pn.rule
@@ -293,7 +259,8 @@ class TSGPackager(val pcfg : PCFG) {
           else
             dos.writeInt(0)
 
-          dos.writeInt(0) //aspect
+          dos.writeInt(aspect) //aspect
+          dos.writeInt(0) //foot
 
           var sibs = pn.children.map((n) => true).toArray
           sibs(sibs.length - 1) = false
@@ -309,11 +276,8 @@ class TSGPackager(val pcfg : PCFG) {
     walktree(tree.root,0,false)
     
     markers.foreach(m => {dos.writeBoolean(m)})
-    
-
   }  
   
-
   def unpack(data : Array[ParseTree with Markers], infile : String) : PTSG = {
     val dis = new DataInputStream(
       new BufferedInputStream(new FileInputStream(new File(infile))))
@@ -383,6 +347,137 @@ class TSGPackager(val pcfg : PCFG) {
     */
 
     ptsg
+  }
+
+  def unpackHDP(data : List[Array[ParseTree with Markers with Aspect]], infile : String) : HDPTSG = {
+    val dis = new DataInputStream(
+      new BufferedInputStream(new FileInputStream(new File(infile))))
+
+    //burn through the PCFG, just make sure its set up in the same way
+    val nRules = dis.readInt()
+    for{i <- 1 to nRules}{dis.readDouble}
+    for{i <- 1 to nRules}{dis.readInt}
+    val nLHS = dis.readInt()    
+
+    val numTSets = dis.readInt()
+    for(i <- 0 to numTSets-1) {
+      val nTrees : Int = dis.readInt()
+      println("READING " + nTrees + " TREES")
+      for(k <- 0 to nTrees - 1) {
+        val pt = data(i)(k)
+        val nNodes : Int = dis.readInt()  //burn number of nodes
+        pt.nonterminals.foreach(n => {
+      
+      
+          dis.readInt()
+          dis.readByte()
+          dis.readInt()
+          dis.readInt()
+          dis.readInt()
+          dis.readInt()
+          dis.readInt()
+          val asp = dis.readInt()
+          dis.readInt()
+
+          pt.aspect += (new RefWrapper(n) -> asp)
+        })
+
+        //Node data is stored in DFS order
+        val nts = pt.nonterminals 
+      
+        for{j <- 0 to nNodes - 1} {
+          if(dis.readByte() > 0) {
+            pt.mark(nts(j))
+          }
+        }
+      }
+    }
+    
+    val betas = (for{i <- 1 to nLHS} yield {
+      dis.readDouble()
+    }).toArray
+
+    val baseAlpha = (for{i <- 1 to nLHS} yield {
+      dis.readDouble()
+    }).toArray    
+    
+    val numDP = dis.readInt()
+  
+    val mixAlphas = (for{i <- 1 to numDP} yield {
+      (for{i <- 1 to nLHS} yield {
+        dis.readDouble()
+      }).toArray    
+    }).toArray
+
+    val mixCounts = (for(i <- 1 to numDP) yield {
+      new HashMap[ParseTree,Int]()
+    }).toArray
+
+    val counts = new HashMap[ParseTree,Int]()
+
+    val dist = new CohnGoldwater(pcfg,betas) //we need this to fill the base
+
+
+    //ripped out of hdptsg
+    /**
+    val headMap = (for{i <- 0 to pcfg.nextSymID} yield {
+      Nil
+    }).toArray
+    import scala.collection.mutable.HashSet
+    val segSet = new HashSet[ParseTree]()
+    data.foreach(tree => {
+      tree.getSegments.foreach(seg => {
+        if(!segSet.contains(seg)) {
+          headMap(seg.root.symbol) ::= seg
+          segSet += seg
+        }
+      })
+    })
+    */
+
+    //headTotals is a list of the total counts of trees 
+    val headTotals = (for{i <- 0 to numDP - 1} yield {
+      //for each DP, start with 0 count
+      (for{i <- 0 to pcfg.nextSymID} yield {0}).toArray
+    }).toArray
+
+    val baseTotals = (for{i <- 0 to pcfg.nextSymID} yield {0}).toArray
+
+    data.foreach(_.foreach(tree => {
+   
+	  tree.markers.map(m => {
+        val seg = new ParseTree(tree.getSegmentFrom(m.n))
+        val aspect = tree.aspect(new RefWrapper(m.n))
+        var mixmap = mixCounts(aspect)
+        val prev = mixmap.getOrElse(seg,0)
+        
+        val sym = seg.root.symbol
+
+        //with some probability, we will also insert this into the baseCounts
+
+        val baseScore = (baseAlpha(sym) * dist.score(tree) + counts.getOrElse(seg,0)) / (baseAlpha(sym) + baseTotals(sym))
+
+        val fromTable = (prev) / (mixAlphas(aspect)(sym) + headTotals(aspect)(sym))
+
+        val fromBase = (mixAlphas(aspect)(sym) * baseScore) / (mixAlphas(aspect)(sym) + headTotals(aspect)(sym))
+
+        val ratio = fromTable / (fromTable + fromBase)
+
+        val rando = new java.util.Random()
+        if(rando.nextDouble() > ratio) {
+          //sit at a new table
+          val bPrev = counts.getOrElse(seg,0)
+          counts += seg -> (bPrev + 1)
+        }
+
+        val next = prev + 1
+        mixmap += seg -> next
+      })
+    }))
+
+    val hdptsg = new HDPTSG(pcfg,counts,baseAlpha,mixCounts,mixAlphas,dist)
+
+    hdptsg
   }
 
 }

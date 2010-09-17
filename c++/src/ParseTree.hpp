@@ -27,10 +27,13 @@ struct TreeNode {
              NodeOffset sibling_,
              NodeOffset lexHead_,
              char type_,
-             char aspect_) :
+             char aspect_,
+             NodeOffset foot_,
+             NodeOffset segTop_) :
         index(index_), isTerminal(isTerminal_),
         head(head_), parent(parent_), sibling(sibling_),
-        lexHead(lexHead_), type(type_), aspect(aspect_) {};
+        lexHead(lexHead_), type(type_), aspect(aspect_),
+        foot(foot_), segTop(segTop_) {};
 
     TreeNode& operator=(const TreeNode& o) {
         index = o.index;
@@ -41,6 +44,7 @@ struct TreeNode {
         lexHead = o.lexHead;
         type = o.type;
         aspect = o.aspect;
+        foot = o.foot;
         return *this;
     }
     
@@ -49,25 +53,34 @@ struct TreeNode {
     NodeOffset head;    //the root node of the segment containing this node
     NodeOffset parent;
     NodeOffset sibling; //right sibling
+
+    //The following are not absolutely needed for a TSG
+    
     NodeOffset lexHead; //the lexical head
     char type; //right now, 1 if rule has a FFT, 0 otherwise
-    char aspect;
+    char aspect; //the category it comes from in a mixture model
+    NodeOffset foot; //if this is zero, then it is not a TAG rule
+    NodeOffset segTop; //points to the top of this node's segment
+
 };
 
 struct ParseTree {
 public:
-    ParseTree() : nodelist(NULL), markers(NULL), size(0) {}
-    ParseTree(TreeNode* nodelist_,bool* markers_,size_t size_) : size(size_) {
+    ParseTree() : nodelist(NULL), markers(NULL), warps(NULL), size(0) {}
+    ParseTree(TreeNode* nodelist_,bool* markers_,NodeOffset* warps_,size_t size_) : size(size_) {
         if(size > 0) {
             nodelist = new TreeNode[size];
             markers = new bool[size];
+            warps = new NodeOffset[size];
             for(size_t i=0;i<size;++i) {
                 nodelist[i] = nodelist_[i];
                 markers[i] = markers_[i];
+                warps[i] = warps_[i];
             }
         } else {
             nodelist = NULL;
             markers = NULL;
+            warps = NULL;
         }
     }
     
@@ -78,6 +91,9 @@ public:
         if(markers != NULL)
             delete[] markers;
         markers = NULL;
+        if(warps != NULL)
+            delete[] warps;
+        warps = NULL;
     }
     
     ParseTree& operator=(const ParseTree& o) {
@@ -85,12 +101,16 @@ public:
             delete[] nodelist;
         if(markers != NULL)
             delete[] markers;
+        if(warps != NULL)
+            delete[] warps;
         nodelist = new TreeNode[o.size];
         markers = new bool[o.size];
+        warps = new NodeOffset[o.size];
         
         for(size_t i=0;i<o.size;++i) {
             nodelist[i] = o.nodelist[i];
             markers[i] = o.markers[i];
+            warps[i] = o.warps[i];
         }
         size = o.size;
         return *this;
@@ -106,9 +126,9 @@ public:
     
     TreeNode* nodelist;
     bool* markers;
+    NodeOffset* warps;
     size_t size;
 };
-
 
 
 class Segment {
@@ -118,7 +138,8 @@ public:
     Segment();
     Segment& operator=(const Segment& o);
     ~Segment();
-    
+
+    //TODO - make iterators warping
     class iterator {
     public:
         iterator(const Segment* const sr_, TreeNode* n_, NodeOffset offset_);
@@ -149,6 +170,7 @@ public:
     ParseTree* ptree;        
     bool* markers;
     NodeOffset headIndex;
+    NodeOffset* warps;
 
     //#ifdef TSGDEBUG
     void printMe() const {

@@ -16,7 +16,7 @@ toy:
 	bin/tsgsample /home/chonger/data/toyGen.pack /home/chonger/data/toyGen.cpack runlog /home/chonger/data/schedule.txt 0 0 
 
 run:
-	bin/tsgsample $(ARGS) runlog /home/chonger/data/schedule.txt 0 0
+	bin/hdpsample /home/chonger/authorship/business/hdp.pack /home/chonger/authorship/business/hdp.cpack runlog 100
 
 dbl:
 	bin/twosample $(2ARGS) 2Xrunlog 10

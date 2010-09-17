@@ -1,34 +1,36 @@
 #Source Hashes
-#Mon Aug 30 18:15:01 EDT 2010
-src/main/scala/enbuske/parse/tsg/PTSG.scala=e34afa3555c708ba65a28e723c5ebdc5679b0464
-src/main/scala/enbuske/programs/FormFunctionTag.scala=008db04acd8c4f501534a1e2faa866faf85687fc
+#Fri Sep 17 14:04:57 EDT 2010
+src/main/scala/enbuske/parse/tsg/PTSG.scala=e2c432c1562cbb767d4ccd5691907e2c2f671af4
+src/main/scala/enbuske/programs/FormFunctionTag.scala=32ec7a85c579f87d80f03b714aa20f8d57acd4e5
 src/main/scala/enbuske/util/Util.scala=36ed5446e0eb6c021cbb41705fc873f81cc73156
 src/main/scala/enbuske/test/TestLexHead.scala=7201bd161ab6f32443e9f3b9d0c53e138715ed85
 src/main/scala/enbuske/programs/TSGGen.scala=8dab47636697f4f6647f91154798b36b7d47f452
 src/main/scala/enbuske/programs/Trinarize.scala=5eb61783d4430eca6708f53500f5c8e7cc336697
 src/main/scala/enbuske/util/NER.scala=984c64a68a09fb829560c5ac72a66420a6434d6c
 src/main/scala/enbuske/parse/ParseTypes.scala=4cd004c320dc9e283e46db83bc49388947ddc3d3
+src/main/scala/enbuske/parse/AuthorID.scala=f24852e155df98b39102c62fdf7293ae343cacd6
 src/main/scala/enbuske/parse/ParseTreeComponents.scala=e445ff92663389e0fb14c29df7812b243e275dde
-src/main/scala/enbuske/util/DrawTree.scala=cd29d2de9eee2ec19f89eaf7e315a67a1dd30504
 src/main/scala/enbuske/programs/PackTSG.scala=c7393aeb65ddada20e58069e9759b91086c37624
-src/main/scala/enbuske/parse/tsg/TSGPackager.scala=1a05ae3c31e49546f3270781ba9f40119f6c042b
+src/main/scala/enbuske/parse/tsg/TSGPackager.scala=b7da1bafb3c60aacbfc0247ca6e57b2f18c479e2
 src/main/scala/enbuske/programs/Enbuske.scala=215e98e0d6dc20d1ad9b3976d6c5b0874b3c4a6e
 src/main/scala/enbuske/parse/ParseTree.scala=14462482643a87e13a3c87051110cb2538937c04
 src/main/scala/enbuske/parse/tsg/TSGTree.scala=fe40abf5f5d068d833fdc52e70edce62d30e6504
+src/main/scala/enbuske/programs/AuthorPack.scala=27847cf00c5e325bde4f4f9f9d2c9e6f482aaf9d
 src/main/scala/enbuske/util/Binarizer.scala=4e707c85436602a92143c8f848c0ab0a12011d0c
 src/main/scala/enbuske/parse/generate/Jabberwock.scala=4ca6d0fcdaf3a41655ee7a1022250f978e4818b9
 src/main/scala/enbuske/parse/PCFGPrinter.scala=135b45728652650ee0be124c0855acc00f5c91f9
 src/main/scala/enbuske/programs/PrepNParse.scala=a9847fbf7191c3c3c2f6f59c6bcec537bcfd8b3a
-src/main/scala/enbuske/programs/UnpackToText.scala=e46915f85da34c1b5d2aa786438e911588320396
+src/main/scala/enbuske/programs/UnpackToText.scala=7314961c206bbd467e8015f9b226c1200e0eb925
 src/main/scala/enbuske/parse/tsg/TreeDistribution.scala=5ba2788e359c996f1a6591af749b45a7ef5638a4
 src/main/scala/enbuske/util/Unker.scala=93613e07016071f97e858f35baec50c4b19ec42f
 src/main/scala/enbuske/util/PTClassifier.scala=9f16793edc9bb8ef90fdc918fb9af1d369bdd864
+src/main/scala/enbuske/parse/tsg/HDPTSG.scala=a59c2d97dd9cd1c57e156a2e385ceedba72b64ba
 src/main/scala/enbuske/programs/StanNER.scala=423bf2e2c24e7bebb33dc1d67137762050a4f0ea
-src/main/scala/enbuske/parse/tsg/TrainingTrees.scala=8ea1cea749acf3fefba316bb25bf317b36eee267
-src/main/scala/enbuske/programs/TrimTags.scala=7b64cbbd9976b99d47d4c09ec6f16ad34b2fae13
+src/main/scala/enbuske/parse/tsg/TrainingTrees.scala=f781e83c223adb58635930ce33edb26f159a8e6c
 src/main/scala/enbuske/util/HeadFinder.scala=3df61106d84e9cf40b4331b25d17c6dc2c7150a6
+src/main/scala/enbuske/parse/tsg/ETreeDP.scala=45d04062b56200ba5e74236fe3da38195b954658
 src/main/scala/enbuske/programs/elit/GetPhrases.scala=6eb2bf81ad8690d7cc5fd8284e390572247b2063
 src/main/scala/enbuske/programs/UnkTreebank.scala=4d2441bf8dd65a86ec2297595ac03ab4bae6db07
-src/main/scala/enbuske/programs/Pack2TSG.scala=f06021469ed56dee1fa9aebfcb6be943616a8c8a
 src/main/scala/enbuske/programs/PTClass.scala=3add1d00cde76bc579c410cdfdac8e3f04b46303
 src/main/scala/enbuske/parse/PCFG.scala=8b627561c28d70445d5267156f8516302bb3f220
+src/main/scala/enbuske/parse/tsg/PTAG.scala=3032ce018cb502f0e3a46a1f6c3096bf80e12068

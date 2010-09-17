@@ -3,6 +3,8 @@ package enbuske.programs
 import parse._
 import tsg._
 import java.io.{BufferedWriter,FileWriter,File}
+import util.Trinarizer
+import util.PTClassifier
 
 object FormFunctionTag {
   def main(args : Array[String]) : Unit = {
@@ -17,14 +19,18 @@ object FormFunctionTag {
     val toTag = pcfg.read(args(2))
 
     pcfg.process(data ::: toTag)
-    pcfg.setLock(true)
+    //pcfg.setLock(true)
 
     val tDist = new PCFGDistribution(pcfg)
     
     val packer = new TSGPackager(pcfg)
     val ptsg = packer.unpack(data.toArray,args(1))
 
+    ptsg.smoothFac = args(4).toDouble
+
     ptsg.addPCFGRules(toTag)
+
+    //ptsg.addAllTags()
 
     var ind = 0
 
@@ -61,9 +67,13 @@ object FormFunctionTag {
 
       newTree
     })
+    
+    val ptc = new PTClassifier(pcfg)
+
+    val ret = ptc.revert(Trinarizer.revert(tagged,pcfg),pcfg)
 
     println(args(3))
-    pcfg.write(args(3),tagged)
+    pcfg.write(args(3),ret)
 
     1
   }

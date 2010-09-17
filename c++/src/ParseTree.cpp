@@ -5,19 +5,24 @@ Segment::Segment(ParseTree* ptree_, const NodeOffset head_) :
     
     if(ptree != NULL) {
         markers = new bool[ptree->size];
+        warps = new NodeOffset[ptree->size];
         for(size_t i=0;i<ptree->size;++i) {
             markers[i] = ptree->markers[i];
+            warps[i] = ptree->warps[i];
         }
-    } else
+    } else {
         markers = NULL;
+        warps = NULL;
+    }
 }
 
 Segment::Segment(const Segment& o) : ptree(o.ptree), headIndex(o.headIndex), finish(this,NULL,0) {
     if(ptree != NULL) {
         markers = new bool[ptree->size];
-        
+        warps = new NodeOffset[ptree->size];
         for(size_t i=0;i<ptree->size;++i) {
             markers[i] = o.markers[i];
+            warps[i] = o.warps[i];
         }
     } else
         markers = NULL;
@@ -25,6 +30,7 @@ Segment::Segment(const Segment& o) : ptree(o.ptree), headIndex(o.headIndex), fin
 
 Segment::Segment() : ptree(NULL), headIndex(0), finish(this,NULL,0) {
     markers = NULL;
+    warps = NULL;
 }
     
 Segment& Segment::operator=(const Segment& o) {
@@ -33,12 +39,19 @@ Segment& Segment::operator=(const Segment& o) {
     if(ptree != NULL) {
         if(markers != NULL)
             delete[] markers;
+        if(warps != NULL)
+            delete[] warps;
         markers = new bool[ptree->size];
+        warps = new NodeOffset[ptree->size];
         for(size_t i=0;i<ptree->size;++i) {
             markers[i] = o.markers[i];
+            warps[i] = o.warps[i];
         }
-    } else
+        
+    } else {
         markers = NULL;
+        warps = NULL;
+    }
     return *this;
 }
     
@@ -46,6 +59,9 @@ Segment::~Segment() {
     if(markers != NULL)
         delete[] markers;
     markers = NULL;
+    if(warps != NULL)
+        delete[] warps;
+    warps = NULL;
 }
 
 Segment::iterator::iterator(const Segment* const sr_, TreeNode* n_, NodeOffset offset_) :
@@ -55,7 +71,7 @@ Segment::iterator::iterator(const Segment* const sr_, TreeNode* n_, NodeOffset o
 Segment::iterator& Segment::iterator::operator++() {
     std::pair<TreeNode*,NodeOffset> res;
     if(stub) {
-        stub = false;
+        stub = false;        
         res = getNextUp(n,offset);
     } else
         res = getNext(n,offset);
@@ -68,7 +84,7 @@ Segment::iterator& Segment::iterator::operator++() {
 bool Segment::iterator::operator==(const Segment::iterator& o) {
     /**
      * dont bother equating parse trees, if the
-     * segment refs are equal then the parse tree
+     * segment ptrs are equal then the parse tree
      * should be the same
      */ 
     return this->sr == o.sr &&
@@ -85,8 +101,18 @@ std::pair<TreeNode*,NodeOffset>  Segment::iterator::getNext(TreeNode* node, Node
         NodeOffset cOffset = off + 1;
         TreeNode& child = pt->nodelist[cOffset];
         if(sr->markers[cOffset]) {
+            NodeOffset warpD = sr->warps[cOffset];
+            if(warpD != 0) { //WWWAAAARRRRPPPPPPP!!!!
+                printf("WWAARRRRRPPPPP\n");
+                //TreeNode& dest = pt->nodelist[warpD];
+                //return std::make_pair(&dest,warpD);
+            }
+
+            
             stub = true;
             return std::make_pair(&child,cOffset);
+
+            
         } else {
             return std::make_pair(&child,cOffset);
         }
