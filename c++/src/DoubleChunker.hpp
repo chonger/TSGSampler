@@ -57,16 +57,27 @@ public:
          * to do this just add the trees in with their current aspect
          * 
          */
+        //printf("NUM LHS %d\n",pcfg->nLHS);
 
+        lhsTotals = new double[pcfg->nLHS];
+        
+        for(size_t i=0;i<pcfg->nLHS;++i) {
+            lhsTotals[i] = 0;
+        }
+
+
+        
         for(std::vector<TreeData*>::iterator iter = treeData.begin();
             iter != treeData.end(); ++iter) {
-
+            
             TreeData* td = *iter;
             
             for(size_t i=0;i<td->ntrees;++i) {
                 ParseTree& pt = td->trees[i];
-                
                 for(size_t j=0;j<pt.size;++j) {
+                    TreeNode& n = pt.nodelist[j];
+                    lhsTotals[pcfg->lhsMap[n.index]] += 1;
+                    
                     if(pt.markers[j]) {
                         Segment seg(&pt,j);
                         for(size_t k=0;k<pt.size;++k) {
@@ -107,6 +118,8 @@ public:
         hdp = NULL;
         delete pcfg;
         pcfg = NULL;
+        delete lhsTotals;
+        lhsTotals = NULL;
     }
 
     void sampleNode(SampleData& sample);
@@ -121,6 +134,60 @@ public:
     
 private:
 
+    void resampleParams() {
+        hdp->resampleParams(lhsTotals);
+
+        //resample Mix Weights
+        for(size_t k=0;k<numTreeSets;++k) {
+            TreeData* td = treeData[k];
+                        
+            //get the count of each aspect for each LHS
+            double aspectCount[hdp->numDP][pcfg->nLHS];
+            for(size_t j=0;j<hdp->numDP;++j) {
+                for(size_t i=0;i<pcfg->nLHS;++i) {
+                    aspectCount[j][i] = 0;
+                }
+            }
+            for(size_t i=0;i<td->ntrees;++i) {
+                ParseTree& pt = td->trees[i];
+                for(size_t j=0;j<pt.size;++j) {
+                    TreeNode& n = pt.nodelist[j];
+                    if(pt.markers[j]) {
+                        aspectCount[(size_t) n.aspect][pcfg->lhsMap[n.index]] += 1;
+                    }
+                }
+            }
+            
+            double total[pcfg->nLHS]; //total across all DPs for each LHS
+            for(size_t i=0;i<pcfg->nLHS;++i) {
+                total[i] = 0;
+            }
+            for(size_t i=0;i<hdp->numDP;++i) {
+                for(size_t j=0;j<pcfg->nLHS;++j) {
+                    total[j] += aspectCount[i][j];
+                }
+            }
+            
+            
+            /**
+             *
+             * unsmoothed Maximum Likelihood estimate makes
+             * sure that no mass leaks into other aspects
+             *
+             */
+            //printf("TREESET %d\n",k);
+            for(size_t i=0;i<hdp->numDP;++i) {
+                //printf("DP %d\n",i);
+                for(size_t j=0;j<pcfg->nLHS;++j) {
+                    if(total[j] != 0) {
+                        mixWeights[k][i][j] = aspectCount[i][j] / total[j];
+                        //printf("LHS %d : %E\n",j,mixWeights[k][i][j]);
+                    }
+                }
+            }
+        }
+    }
+    
     char sampleAspect(std::vector<double>&,double);
 
     std::vector<SampleData> samples;
@@ -128,6 +195,7 @@ private:
     size_t numTreeSets;
     PCFG* pcfg;
     HDP* hdp;
+    double* lhsTotals;
     std::vector<TreeData*> treeData;
     //for each tree set, set the weights for each NP
     std::vector<std::vector<std::vector<double> > > mixWeights;

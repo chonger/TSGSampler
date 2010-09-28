@@ -76,7 +76,6 @@ void DoubleChunker::sampleNode(SampleData& sample) {
         double mixH = mixWeights[dataIndex][i][headLHS];
         double mixN = mixWeights[dataIndex][i][nodeLHS];
         if(mixH > 0) {
-
             double j = hdp->score(join,i) * mixH;
             //printf("scoring j in mixture dp %d - %E\n",i,j);
             jTotal += j;
@@ -96,8 +95,6 @@ void DoubleChunker::sampleNode(SampleData& sample) {
                 printf("BAD J - %E\n",j);
                 throw "!";
             }
-            
-
         } else {
             scoresJ.push_back(0);
             scoresT.push_back(0);
@@ -230,7 +227,7 @@ void DoubleChunker::resample(size_t iterations) {
 
         }
 
-        hdp->resampleParams();
+        resampleParams();
         
         double logl = 0.0;
         

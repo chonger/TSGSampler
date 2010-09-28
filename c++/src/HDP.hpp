@@ -92,9 +92,72 @@ public:
         baseLHSCounts = NULL;
     }
 
-    void resampleParams() {
+    void resampleParams(double* lhsTotals) {
 
-        //TODO : param resampling
+        //all of the trees are assigned to one of the mixDPs
+
+        /**
+         * BETA RESAMPLING
+         *      Betas are the probability of LHS's being NT Leaves
+         */ 
+
+        
+        //Base P Estimation of beta needs the counts of all lhs's
+        double allLHSCounts[pcfg->nLHS];
+        for(size_t i=0;i<pcfg->nLHS;++i) {
+            allLHSCounts[i] = 0;
+        }
+
+        
+        //resample base distribution betas - needs LHS counts for all data items and LHS totals
+        for(size_t i=0;i<numDP;++i) {
+            TreeHashMap* m = mixMaps[i];
+            for(TreeHashMap::iterator iter = m->begin(); iter != m->end(); ++iter) {
+                TreeNode& n = iter->first.ptree->nodelist[iter->first.headIndex]; //head of the rule
+                size_t index = pcfg->lhsMap[n.index];
+                allLHSCounts[index] += 1;
+            }
+        }
+
+        base->resampleParams(allLHSCounts,lhsTotals);
+        
+
+        /**
+         *          ALPHA RESAMPLING
+         *             Alphas are the concentration parameters
+         */ 
+        
+        //first collect the number of classes in all DPs
+        double baseClasses[pcfg->nLHS];
+        double mixClasses[numDP][pcfg->nLHS];
+        for(size_t i=0;i<pcfg->nLHS;++i) {
+            baseClasses[i] = 0;
+            for(size_t j=0;j<numDP;++j) {
+                mixClasses[j][i] = 0;
+            }
+        }
+
+        for(TreeHashMap::iterator iter = baseMap.begin(); iter != baseMap.end(); ++iter) {
+            TreeNode& n = iter->first.ptree->nodelist[iter->first.headIndex];
+            baseClasses[pcfg->lhsMap[n.index]] += 1;
+        }
+        
+        for(size_t i=0;i<numDP;++i) {
+            TreeHashMap* m = mixMaps[i];
+            for(TreeHashMap::iterator iter = m->begin(); iter != m->end(); ++iter) {
+                TreeNode& n = iter->first.ptree->nodelist[iter->first.headIndex];
+                mixClasses[i][pcfg->lhsMap[n.index]] += 1;
+            }
+        }
+        
+        //resample alphas for base 
+        resampleAlpha(baseAlpha,baseClasses,baseLHSCounts);
+        
+        //resample alphas for each mixDP
+        for(size_t i=0;i<numDP;++i) {
+            resampleAlpha(mixAlpha[i],mixClasses[i],mixLHSCounts[i]);
+        }
+        
         
     }
 
@@ -371,6 +434,8 @@ public:
     ParseTree* nulltree1;
     ParseTree* nulltree2;
 
+    
+    
     PCFG* pcfg;
     BASE* base;
     TreeHashMap baseMap;
@@ -384,6 +449,74 @@ public:
     std::vector<TableHashMap*> tables;
 
 private:
+
+    void resampleAlpha(double* alpha,double* numClasses,double* lhsTotals) {
+
+        double ALPHA_SIGSQ = 100;
+        double GAMMA_A = .001;
+        double GAMMA_B = 1000;
+        
+        gsl_rng* r = gsl_rng_alloc(gsl_rng_taus);
+        
+        //printf("RESAMPLED ALPHAS\n");
+        for(size_t i=0;i<pcfg->nLHS;++i) {
+            double curAlpha = alpha[i];
+            double numC = numClasses[i];
+            double total = lhsTotals[i];
+
+            printf("RESAMP DATA A-%E K-%d N-%d\n",curAlpha,(size_t)numC,(size_t)total);
+            
+            //this was == 0, but I got some floating point errors, these should be counts anyways.
+            if(total < 1) //dont resample the alpha if this DP is empty
+                continue;
+            
+            std::pair<double,double> curMV = getLNMeanVar(curAlpha,ALPHA_SIGSQ);
+            double nextAlpha = gsl_ran_lognormal(r,curMV.first,curMV.second);
+            std::pair<double,double> nextMV = getLNMeanVar(nextAlpha,ALPHA_SIGSQ);
+            double qFrac = gsl_ran_lognormal_pdf(curAlpha,nextMV.first,nextMV.second);
+            
+            qFrac /= gsl_ran_lognormal_pdf(nextAlpha,curMV.first,curMV.second);
+            
+            
+            double pFrac = evalGammaPosterior(nextAlpha,GAMMA_A,GAMMA_B,numC,total);
+            
+            pFrac /= evalGammaPosterior(curAlpha,GAMMA_A,GAMMA_B,numC,total);
+            
+            double accept = qFrac * pFrac;
+            
+            if(nextAlpha == 0)
+                continue;
+            if(accept >= 1.0) 
+                alpha[i] = nextAlpha;
+            else {
+                double rando = ((double)rand() / (double) RAND_MAX);
+                if(rando <= accept) {
+                    alpha[i] = nextAlpha;
+                }
+            }
+
+            //printf("ALPHA %f\n",nextAlpha);
+            
+        }
+        
+        gsl_rng_free(r);
+
+    }
+    
+    std::pair<double,double> getLNMeanVar(double d, double variance) {
+        double v = log (variance / pow(d,2.0) + 1);
+        double m = log(d) - v/2;
+        return std::make_pair(m,v);
+    }
+    
+    double evalGammaPosterior(double d, double gamma_a, double gamma_b, double k, double n) {
+        double ret = log(gsl_ran_gamma_pdf(d,gamma_a,gamma_b));
+        ret += log(d) * (k-1);
+        ret += log(d + n);
+        ret += gsl_sf_lnbeta(d+1,n);
+        ret = exp(ret);
+        return ret;
+    }
     
 };
 

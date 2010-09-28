@@ -93,7 +93,9 @@ public:
 
     void resampleParams(double* lhsCounts, double* lhsTotals) {
         double prior = 100;
-    
+
+        //printf("RESAMPLE  BETAS\n");
+        
         gsl_rng* r = gsl_rng_alloc(gsl_rng_taus);
         for(size_t i=0;i<pcfg->nLHS;++i) {
             size_t expCount = lhsCounts[i];
@@ -107,6 +109,8 @@ public:
                 newVal = .0001;
             
             beta[i] = newVal;
+            //higher beta means that you are more often uncut
+            //printf("BETA : %d %d - %E\n",nExpCount,expCount,beta[i]);
         }
         gsl_rng_free(r);   
     }
