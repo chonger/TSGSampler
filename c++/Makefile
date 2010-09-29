@@ -28,7 +28,7 @@ trun:
 	bin/tsgtest /home/chonger/data/fft.pack /home/chonger/data/fft00.cpack runlog /home/chonger/data/schedule.txt 1 1 &
 
 air:
-	bin/tsgtest $(ARGA) airlog /home/chonger/data/airplane/schedule.txt
+	bin/hdpsample /home/chonger/data/airplane/airhdp.pack /home/chonger/data/airplane/airhdp.cpack runlogAIR 100
 
 cont: 
 	bin/tsgtest $(ARGS2) runlog /home/chonger/data/schedule.txt cont

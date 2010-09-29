@@ -135,7 +135,7 @@ public:
 private:
 
     void resampleParams() {
-        hdp->resampleParams(lhsTotals);
+        //hdp->resampleParams(lhsTotals);
 
         //resample Mix Weights
         for(size_t k=0;k<numTreeSets;++k) {

@@ -182,7 +182,13 @@ class PCFG() {
     println("writing " + data.length + " trees to " + filename + " in treebank format")
     import java.io.{File,FileWriter,BufferedWriter}
 	var bw = new BufferedWriter(new FileWriter(new File(filename)))
-	data.foreach(d => bw.write("\\s+".r.replaceAllIn(PCFGPrinter.treeToString(this,d)," ") + "\n"))
+
+	data.foreach(d => {
+
+      bw.write("\\s+".r.replaceAllIn(PCFGPrinter.treeToString(this,d)," ") + "\n")
+
+      
+    })
 	bw.close
   }
 }

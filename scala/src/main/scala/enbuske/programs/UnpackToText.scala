@@ -83,3 +83,48 @@ class UnpackerToText(rawF : String, packedF : String, start : Int, end : Int) {
   }
 
 }
+
+class HDPUnpackerToText(hdptsg : HDPTSG) {
+/**
+  val pcfg = new DirectlyEstimatedPCFG()
+  val raw = pcfg.read(rawF)
+  pcfg.process(raw)
+  
+  val data = raw.map(r => new ParseTree(r.root) with Markers)
+  
+  val packer = new TSGPackager(pcfg)
+  val ptsg = packer.unpack(data.toArray,packedF)
+
+  def options() = {
+    pcfg.symbolStrings.foreach(a => println(a))
+  }
+
+  def apply(s : String) = {
+    val segs = ptsg.headMap(pcfg.symbolIDs(s))
+   
+    segs.sort((a,b) => {ptsg.scoreMap(a) > ptsg.scoreMap(b)}).slice(0,10).foreach(e => {
+      println(PCFGPrinter.treeToString(pcfg,e))
+      println(ptsg.scoreMap(e))
+    })
+
+    println("Z = " + (0.0 /: segs)((a,b) => a + ptsg.scoreMap(b)))
+
+  }
+
+  def writeAll(filename : String) = {
+    val bw = new BufferedWriter(new FileWriter(new File(filename)))
+    pcfg.symbolStrings.foreach(s => {
+      val segs = ptsg.headMap(pcfg.symbolIDs(s))
+   
+      segs.sort((a,b) => {ptsg.scoreMap(a) > ptsg.scoreMap(b)}).slice(0,20).foreach(e => {
+        bw.write(PCFGPrinter.treeToString(pcfg,e) + "\n")
+        bw.write(ptsg.scoreMap(e) + "\n")
+      })
+
+      bw.write("Z = " + (0.0 /: segs)((a,b) => a + ptsg.scoreMap(b)) + "\n------------------------------------------------\n")
+    })
+    bw.close()
+  }
+*/
+}
+

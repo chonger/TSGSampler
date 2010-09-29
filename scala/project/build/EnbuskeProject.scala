@@ -25,6 +25,13 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
                                 List("/home/chonger/authorship/business")
                               ) dependsOn(compile)
 
+  lazy val airpack = runTask(Some("enbuske.programs.AirPack"),runClasspath,
+                                List("/home/chonger/data/airplane")
+                              ) dependsOn(compile)
+  lazy val airupack = runTask(Some("enbuske.programs.AirUnPack"),runClasspath,
+                                List("/home/chonger/data/airplane")
+                              ) dependsOn(compile)
+
 
   lazy val pack = runTask(Some("enbuske.programs.PackTSG"),runClasspath,
                                 List(dataDir + "fft.unk.txt",dataDir + "fft.pack")
@@ -52,11 +59,24 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   }
 
   
+  val airDir = "/home/chonger/data/airplane/"
+
+  lazy val unkown = runTask(Some("enbuske.programs.UnkOwn"),
+                           runClasspath,List(airDir + "train.txt",
+                                             airDir + "train.unk.txt")) dependsOn(compile)
+
   lazy val unkTB = runTask(Some("enbuske.programs.UnkTreebank"),
-                           runClasspath,List(dataDir + "fft.unk.txt",
-                                             dataDir + "23.txt",
-                                             dataDir + "23.unk.txt")) dependsOn(compile)
+                           runClasspath,List(airDir + "train.unk.txt",
+                                             airDir + "airplane.txt",
+                                             airDir + "airplane.unk.txt")) dependsOn(compile)
   
+  lazy val unkLC = runTask(Some("enbuske.programs.UnkLC"),
+                           runClasspath,List(airDir + "airplane.txt",
+                                             airDir + "train.txt",
+                                             airDir + "airplane.unk.txt",
+                                             airDir + "train.unk.txt")) dependsOn(compile)
+  
+
   /**
    *
    * NOT AS USEFUL
@@ -69,8 +89,8 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
                                              dataDir + "fft.trim.txt")) dependsOn(compile)
 
   lazy val trinarize = runTask(Some("enbuske.programs.Trinarize"),
-                               runClasspath,List(dataDir + "fft.unk.txt",
-                                                 dataDir + "fft.tri.txt")) dependsOn(compile)
+                               runClasspath,List(airDir + "train.unk.txt",
+                                                 airDir + "train.unk.tri.txt")) dependsOn(compile)
 
   lazy val ptclass = runTask(Some("enbuske.programs.PTClass"),
                                runClasspath,List(dataDir + "fft.unk.txt",

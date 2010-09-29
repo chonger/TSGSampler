@@ -218,17 +218,23 @@ void DoubleChunker::resample(size_t iterations) {
 
         hdp->printStats();
 
-        
+
+ 
         for(std::vector<SampleData >::iterator iter = samples.begin();
             iter != samples.end(); ++iter) {
-            //if(stop)
-            //    return;
+            if(stop)
+                return;
+ 
             sampleNode(*iter);
 
         }
 
+        printf("Resampling Params\n");
+
         resampleParams();
-        
+
+        printf("Calculating Log Likelihood\n");
+                
         double logl = 0.0;
         
         hdp->clearAll();
@@ -243,7 +249,9 @@ void DoubleChunker::resample(size_t iterations) {
                 for(size_t j=0;j<pt.size;++j) {
                     if(pt.markers[j]) {
                         Segment seg(&pt,j);
+
                         logl += log(hdp->score(seg,pt.nodelist[j].aspect));
+                        
                         hdp->insertTo(pt.nodelist[j].aspect,seg);
                     }
                 }

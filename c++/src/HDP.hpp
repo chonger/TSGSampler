@@ -152,12 +152,13 @@ public:
         
         //resample alphas for base 
         resampleAlpha(baseAlpha,baseClasses,baseLHSCounts);
-        
+
+        /**
         //resample alphas for each mixDP
         for(size_t i=0;i<numDP;++i) {
             resampleAlpha(mixAlpha[i],mixClasses[i],mixLHSCounts[i]);
         }
-        
+        */
         
     }
 
@@ -464,7 +465,7 @@ private:
             double numC = numClasses[i];
             double total = lhsTotals[i];
 
-            printf("RESAMP DATA A-%E K-%d N-%d\n",curAlpha,(size_t)numC,(size_t)total);
+            //printf("RESAMP DATA A-%E K-%d N-%d\n",curAlpha,(size_t)numC,(size_t)total);
             
             //this was == 0, but I got some floating point errors, these should be counts anyways.
             if(total < 1) //dont resample the alpha if this DP is empty

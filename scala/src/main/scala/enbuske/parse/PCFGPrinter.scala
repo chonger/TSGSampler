@@ -67,7 +67,12 @@ object PCFGPrinter {
     	    a + "\n" + offset + spcstr + recTreeToString(pcfg,b,offset + spcstr)})
     	ret + ")"
       case TerminalNode(terminal) => {
-        pcfg.terminalStrings(terminal)  
+        try{
+          pcfg.terminalStrings(terminal)  
+        } catch {
+          case _ => {println("TERM! " + terminal) 
+                     throw new Exception()}
+        }
       }
     }
   }  

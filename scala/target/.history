@@ -1,16 +1,3 @@
-run data/train.unk.txt data/train.seg 3 3 100 100
-actions
-package
-override mainClass = Some("a")
-reload
-hi
-reload
-hi
-run data/train.unk.txt data/train.seg 3 3 100 100
-reload
-threadrun
-actions
-hi
 exit
 compile
 reload
@@ -500,3 +487,20 @@ q
 aupack 
 console
 aupack 
+airpack 
+reload
+trinarize 
+reload
+trinarize 
+reload
+unkLC
+unk-l-c 
+reload
+trinarize 
+reload
+trinarize 
+airpack 
+compile
+airupack 
+airpack 
+airupack 
