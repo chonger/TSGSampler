@@ -1,10 +1,10 @@
 #Source Dependencies
-#Wed Sep 29 01:38:15 EDT 2010
+#Thu Oct 07 19:18:03 EDT 2010
 src/main/scala/enbuske/parse/tsg/PTAG.scala=
 src/main/scala/enbuske/util/Unker.scala=src/main/scala/enbuske/programs/UnkTreebank.scala
 src/main/scala/enbuske/programs/AuthorPack.scala=
 src/main/scala/enbuske/parse/Airplane.scala=src/main/scala/enbuske/programs/AirPack.scala
-src/main/scala/enbuske/parse/ParseTreeComponents.scala=src/main/scala/enbuske/parse/tsg/TSGPackager.scala\:src/main/scala/enbuske/util/Unker.scala\:src/main/scala/enbuske/parse/generate/Jabberwock.scala\:src/main/scala/enbuske/parse/tsg/ETreeDP.scala\:src/main/scala/enbuske/util/PTClassifier.scala\:src/main/scala/enbuske/parse/tsg/TrainingTrees.scala\:src/main/scala/enbuske/parse/tsg/PTSG.scala\:src/main/scala/enbuske/parse/tsg/PTAG.scala\:src/main/scala/enbuske/parse/PCFG.scala\:src/main/scala/enbuske/programs/elit/GetPhrases.scala\:src/main/scala/enbuske/util/NER.scala\:src/main/scala/enbuske/util/HeadFinder.scala\:src/main/scala/enbuske/parse/tsg/HDPTSG.scala\:src/main/scala/enbuske/parse/ParseTree.scala\:src/main/scala/enbuske/util/Binarizer.scala\:src/main/scala/enbuske/parse/PCFGPrinter.scala\:src/main/scala/enbuske/programs/FormFunctionTag.scala\:src/main/scala/enbuske/parse/tsg/TreeDistribution.scala
+src/main/scala/enbuske/parse/ParseTreeComponents.scala=src/main/scala/enbuske/parse/tsg/TSGPackager.scala\:src/main/scala/enbuske/util/Unker.scala\:src/main/scala/enbuske/parse/generate/Jabberwock.scala\:src/main/scala/enbuske/parse/tsg/ETreeDP.scala\:src/main/scala/enbuske/util/PTClassifier.scala\:src/main/scala/enbuske/parse/tsg/TrainingTrees.scala\:src/main/scala/enbuske/parse/tsg/PTSG.scala\:src/main/scala/enbuske/parse/tsg/PTAG.scala\:src/main/scala/enbuske/parse/PCFG.scala\:src/main/scala/enbuske/programs/elit/GetPhrases.scala\:src/main/scala/enbuske/util/NER.scala\:src/main/scala/enbuske/util/HeadFinder.scala\:src/main/scala/enbuske/parse/tsg/HDPTSG.scala\:src/main/scala/enbuske/parse/ParseTree.scala\:src/main/scala/enbuske/util/Binarizer.scala\:src/main/scala/enbuske/parse/Airplane.scala\:src/main/scala/enbuske/parse/PCFGPrinter.scala\:src/main/scala/enbuske/programs/FormFunctionTag.scala\:src/main/scala/enbuske/parse/tsg/TreeDistribution.scala
 src/main/scala/enbuske/parse/tsg/ETreeDP.scala=src/main/scala/enbuske/parse/tsg/PTAG.scala
 src/main/scala/enbuske/programs/UnkTreebank.scala=
 src/main/scala/enbuske/programs/PTClass.scala=

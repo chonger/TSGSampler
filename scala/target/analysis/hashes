@@ -1,9 +1,9 @@
 #Source Hashes
-#Wed Sep 29 01:38:15 EDT 2010
+#Thu Oct 07 19:18:03 EDT 2010
 src/main/scala/enbuske/parse/tsg/PTAG.scala=3032ce018cb502f0e3a46a1f6c3096bf80e12068
 src/main/scala/enbuske/util/Unker.scala=c23527383e6caddeff64609340e10e739a9f539f
 src/main/scala/enbuske/programs/AuthorPack.scala=27847cf00c5e325bde4f4f9f9d2c9e6f482aaf9d
-src/main/scala/enbuske/parse/Airplane.scala=036974f589e20e05d239ddee13e77b02ec1dfa55
+src/main/scala/enbuske/parse/Airplane.scala=e8e1f7c736170b76f1cd3d5b86bb286a7f47072a
 src/main/scala/enbuske/parse/ParseTreeComponents.scala=e445ff92663389e0fb14c29df7812b243e275dde
 src/main/scala/enbuske/parse/tsg/ETreeDP.scala=45d04062b56200ba5e74236fe3da38195b954658
 src/main/scala/enbuske/programs/UnkTreebank.scala=7fe99222bdd88105291c838c7db42966f91b721e
@@ -25,13 +25,13 @@ src/main/scala/enbuske/parse/ParseTree.scala=14462482643a87e13a3c87051110cb25389
 src/main/scala/enbuske/programs/FormFunctionTag.scala=32ec7a85c579f87d80f03b714aa20f8d57acd4e5
 src/main/scala/enbuske/test/TestLexHead.scala=7201bd161ab6f32443e9f3b9d0c53e138715ed85
 src/main/scala/enbuske/parse/PCFG.scala=06dee2ac5ca156eeab53a67dfca06a54e5f8b320
-src/main/scala/enbuske/parse/tsg/HDPTSG.scala=a59c2d97dd9cd1c57e156a2e385ceedba72b64ba
+src/main/scala/enbuske/parse/tsg/HDPTSG.scala=9ba5325b7026da169987d53ac910f76de4148eb1
 src/main/scala/enbuske/parse/PCFGPrinter.scala=55842ea83edf7117ffd11037208f74b30f71cb32
 src/main/scala/enbuske/parse/generate/Jabberwock.scala=4ca6d0fcdaf3a41655ee7a1022250f978e4818b9
 src/main/scala/enbuske/util/Util.scala=36ed5446e0eb6c021cbb41705fc873f81cc73156
 src/main/scala/enbuske/programs/PackTSG.scala=c7393aeb65ddada20e58069e9759b91086c37624
 src/main/scala/enbuske/programs/elit/GetPhrases.scala=6eb2bf81ad8690d7cc5fd8284e390572247b2063
-src/main/scala/enbuske/parse/tsg/TSGPackager.scala=b7da1bafb3c60aacbfc0247ca6e57b2f18c479e2
+src/main/scala/enbuske/parse/tsg/TSGPackager.scala=5f3bfa4f186c055d1ebaf4da463cba4052e4817c
 src/main/scala/enbuske/programs/Enbuske.scala=215e98e0d6dc20d1ad9b3976d6c5b0874b3c4a6e
 src/main/scala/enbuske/parse/AuthorID.scala=dde2f0496b34217219683b4412cd81d5418b19be
 src/main/scala/enbuske/parse/tsg/TSGTree.scala=fe40abf5f5d068d833fdc52e70edce62d30e6504

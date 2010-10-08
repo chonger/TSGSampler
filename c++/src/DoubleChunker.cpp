@@ -229,9 +229,11 @@ void DoubleChunker::resample(size_t iterations) {
 
         }
 
-        printf("Resampling Params\n");
+        //if(i % 10 == 9) { 
+            printf("Resampling Params\n");
 
-        resampleParams();
+            resampleParams();
+            //}
 
         printf("Calculating Log Likelihood\n");
                 

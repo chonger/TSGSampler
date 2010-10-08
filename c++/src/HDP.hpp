@@ -149,16 +149,16 @@ public:
                 mixClasses[i][pcfg->lhsMap[n.index]] += 1;
             }
         }
-        
+
         //resample alphas for base 
         resampleAlpha(baseAlpha,baseClasses,baseLHSCounts);
 
-        /**
+        
         //resample alphas for each mixDP
         for(size_t i=0;i<numDP;++i) {
             resampleAlpha(mixAlpha[i],mixClasses[i],mixLHSCounts[i]);
         }
-        */
+
         
     }
 
@@ -456,6 +456,7 @@ private:
         double ALPHA_SIGSQ = 100;
         double GAMMA_A = .001;
         double GAMMA_B = 1000;
+        double LOW_BOUND = .1;
         
         gsl_rng* r = gsl_rng_alloc(gsl_rng_taus);
         
@@ -486,6 +487,8 @@ private:
             double accept = qFrac * pFrac;
             
             if(nextAlpha == 0)
+                continue;
+            if(nextAlpha < LOW_BOUND)
                 continue;
             if(accept >= 1.0) 
                 alpha[i] = nextAlpha;

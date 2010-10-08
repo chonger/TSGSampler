@@ -1,13 +1,3 @@
-exit
-compile
-reload
-actions
-projects
-project
-project BTeam 
-actions
-clean
-help
 current
 actions
 exit
@@ -504,3 +494,8 @@ compile
 airupack 
 airpack 
 airupack 
+aupack 
+package
+aupack 
+author-i-d 
+airunpack 

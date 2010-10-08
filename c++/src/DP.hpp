@@ -92,7 +92,7 @@ public:
     }
 
     void resampleParams(double* lhsCounts, double* lhsTotals) {
-        double prior = 100;
+        double prior = 1;
 
         //printf("RESAMPLE  BETAS\n");
         

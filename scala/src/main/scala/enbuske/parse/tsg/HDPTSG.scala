@@ -8,6 +8,7 @@ class HDPTSG(val pcfg : PCFG,
              var baseAlpha : Array[Double],
              var mixCounts : Array[HashMap[ParseTree,Int]],
              var mixAlpha : Array[Array[Double]],
+             val mixWeights : Array[Array[Array[Double]]],
              val dist : TreeDistribution) {
 
   val numDP = mixCounts.length

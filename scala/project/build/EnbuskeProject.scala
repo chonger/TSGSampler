@@ -21,14 +21,15 @@ class EnbuskeProject(info: ProjectInfo) extends DefaultProject(info)
   lazy val apack = runTask(Some("enbuske.programs.AuthorPack"),runClasspath,
                                 List("/home/chonger/authorship/business")
                               ) dependsOn(compile)
-  lazy val aupack = runTask(Some("enbuske.programs.AuthorUnPack"),runClasspath,
+  lazy val authorID = runTask(Some("enbuske.programs.AuthorUnPack"),runClasspath,
                                 List("/home/chonger/authorship/business")
                               ) dependsOn(compile)
 
   lazy val airpack = runTask(Some("enbuske.programs.AirPack"),runClasspath,
                                 List("/home/chonger/data/airplane")
                               ) dependsOn(compile)
-  lazy val airupack = runTask(Some("enbuske.programs.AirUnPack"),runClasspath,
+
+  lazy val airunpack = runTask(Some("enbuske.programs.AirUnPack"),runClasspath,
                                 List("/home/chonger/data/airplane")
                               ) dependsOn(compile)
 

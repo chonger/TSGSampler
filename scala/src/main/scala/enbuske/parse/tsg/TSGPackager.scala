@@ -409,6 +409,20 @@ class TSGPackager(val pcfg : PCFG) {
       }).toArray    
     }).toArray
 
+    
+    var mixWeights :Array[Array[Array[Double]]] = new Array[Array[Array[Double]]](numTSets,numDP,nLHS)
+
+    for(i <- 0 to numTSets - 1) {
+      println(i)
+      for(j <- 0 to numDP - 1) {
+        println(j)
+        for(k <- 0 to nLHS - 1) {
+          mixWeights(i)(j)(k) = dis.readDouble
+          println(k + "-" + mixWeights(i)(j)(k))
+        }
+      }
+    }
+
     val mixCounts = (for(i <- 1 to numDP) yield {
       new HashMap[ParseTree,Int]()
     }).toArray
@@ -443,6 +457,8 @@ class TSGPackager(val pcfg : PCFG) {
 
     val baseTotals = (for{i <- 0 to pcfg.nextSymID} yield {0}).toArray
 
+
+    //populate
     data.foreach(_.foreach(tree => {
    
 	  tree.markers.map(m => {
@@ -475,7 +491,7 @@ class TSGPackager(val pcfg : PCFG) {
       })
     }))
 
-    val hdptsg = new HDPTSG(pcfg,counts,baseAlpha,mixCounts,mixAlphas,dist)
+    val hdptsg = new HDPTSG(pcfg,counts,baseAlpha,mixCounts,mixAlphas,mixWeights,dist)
 
     hdptsg
   }
